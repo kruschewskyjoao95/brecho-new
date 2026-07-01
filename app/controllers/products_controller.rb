@@ -31,8 +31,8 @@ class ProductsController < ApplicationController
       @products = @products.where(condition: params[:condition])
     end
 
-    # Ordenação padrão do catálogo por criação recente
-    @products = @products.order(created_at: :desc)
+    # Ordenação padrão do catálogo por criação recente com paginação Pagy
+    @pagy, @products = pagy(@products.order(created_at: :desc), limit: 12)
   end
 
   def show

@@ -66,3 +66,5 @@ group :test do
 end
 
 gem "rack-attack", "~> 6.8"
+
+gem "pagy", "~> 43.5"

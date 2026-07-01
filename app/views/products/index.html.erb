@@ -140,4 +140,53 @@
       </div>
     <% end %>
   </div>
+
+  <!-- Paginação Pagy para SEO e navegação rápida -->
+  <% if @pagy.pages > 1 %>
+    <div style="display: flex; justify-content: center; margin-top: 40px; margin-bottom: 20px;">
+      <%== series_nav(@pagy) %>
+    </div>
+  <% end %>
 </turbo-frame>
+
+<style>
+  /* Estilização Premium para a Paginação Pagy */
+  .pagy-nav {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .pagy-nav a, .pagy-nav .page {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #eae5e1);
+    color: var(--text-dark, #1e1e1e);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: white;
+  }
+  .pagy-nav a:hover {
+    background: #faf8f6;
+    border-color: #d0c9c0;
+    color: var(--primary-color, #e07a5f);
+  }
+  .pagy-nav .current {
+    background: var(--primary-color, #e07a5f) !important;
+    color: white !important;
+    border-color: var(--primary-color, #e07a5f) !important;
+    font-weight: 600;
+  }
+  .pagy-nav .disabled {
+    color: #9ca3af;
+    border-color: #eae5e1;
+    background: #faf8f6;
+    cursor: not-allowed;
+  }
+  .pagy-nav .gap {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+  }
+</style>

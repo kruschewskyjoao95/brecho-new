@@ -3,6 +3,16 @@
   <head>
     <title><%= content_for(:title) || "Brechó Ruby - Lookbook & Bazar" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for(:meta_description) || "Brechó Ruby - Roupas femininas curadas, lookbooks exclusivos e moda consciente de segunda mão com curadoria impecável." %>">
+    <meta name="keywords" content="brecho, brecho ruby, bazar, lookbook, moda feminina, roupas usadas, desapego, moda consciente">
+    <meta property="og:title" content="<%= content_for(:title) || "Brechó Ruby - Lookbook & Bazar" %>">
+    <meta property="og:description" content="<%= content_for(:meta_description) || "Brechó Ruby - Roupas femininas curadas, lookbooks exclusivos e moda consciente de segunda mão com curadoria impecável." %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:site_name" content="Brechó Ruby">
+    <% if content_for?(:meta_image) %>
+      <meta property="og:image" content="<%= yield(:meta_image) %>">
+    <% end %>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Brechó Ruby">
     <meta name="mobile-web-app-capable" content="yes">
@@ -125,8 +135,72 @@
 
     <!-- Footer -->
     <footer style="margin-top: 80px; padding: 40px 0; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-muted); font-size: 0.9rem;">
-      <p>&copy; <%= Time.current.year %> Brechó Ruby. Todos os direitos reservados.</p>
-      <p style="margin-top: 8px; font-size: 0.8rem;">Desenvolvido com Ruby on Rails 8 & Hotwire.</p>
     </footer>
+
+    <!-- EULA Modal -->
+    <div id="eula-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.65); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+      <div style="background: white; max-width: 600px; width: 100%; max-height: 85vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #eae5e1; animation: fadeInEula 0.3s ease-out;">
+        <!-- Header -->
+        <div style="padding: 24px; border-bottom: 1px solid #eae5e1; background: #faf8f6;">
+          <h2 style="margin: 0; font-size: 1.4rem; color: #1e1e1e; font-weight: 700; font-family: inherit;">Termos de Uso e Consentimento</h2>
+          <p style="margin: 6px 0 0; font-size: 0.85rem; color: #6b7280;">Leia e confirme para acessar o Brechó Ruby</p>
+        </div>
+        <!-- Body (scrollable) -->
+        <div style="padding: 24px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; color: #4b5563; flex: 1;">
+          <p style="margin-top: 0; font-weight: 600; color: #1e1e1e;">Ao entrar no nosso site, você concorda com as seguintes condições de uso e proteção de dados:</p>
+          
+          <h3 style="font-size: 1.05rem; color: #1e1e1e; margin-top: 20px; margin-bottom: 8px;">1. Intermediação de Vendas (Marketplace)</h3>
+          <p style="margin: 0 0 12px 0;">O Brechó Ruby é um marketplace que facilita a negociação entre vendedores e compradores independentes. Não nos responsabilizamos diretamente pela autenticidade, qualidade física ou logística das peças anunciadas pelos usuários.</p>
+          
+          <h3 style="font-size: 1.05rem; color: #1e1e1e; margin-top: 20px; margin-bottom: 8px;">2. Direito de Devolução (CDC)</h3>
+          <p style="margin: 0 0 12px 0;">Em conformidade com o Código de Defesa do Consumidor, arrependimentos de compra podem ser acionados em até 7 dias corridos a partir do recebimento da peça, desde que mantida no mesmo estado em que foi entregue.</p>
+          
+          <h3 style="font-size: 1.05rem; color: #1e1e1e; margin-top: 20px; margin-bottom: 8px;">3. Privacidade e Proteção de Dados (LGPD)</h3>
+          <p style="margin: 0 0 12px 0;">Coletamos dados cadastrais apenas para possibilitar a entrega. Suas chaves de pagamento PIX são salvas sob criptografia forte (AES-256) em nosso banco. Os dados do seu cartão de crédito nunca são expostos ao nosso servidor, sendo processados e tokenizados diretamente pelo gateway de pagamentos parceiro (Asaas/Stripe).</p>
+          
+          <p style="margin-top: 20px; font-size: 0.8rem; color: #9ca3af; border-top: 1px solid #eae5e1; padding-top: 12px;">Para ler as diretrizes completas sobre exclusão de dados e regras financeiras, acesse o documento Termos de Uso em nosso rodapé.</p>
+        </div>
+        <!-- Footer -->
+        <div style="padding: 24px; border-top: 1px solid #eae5e1; background: #faf8f6; display: flex; flex-direction: column; gap: 16px;">
+          <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none;">
+            <input type="checkbox" id="eula-checkbox" style="margin-top: 4px; cursor: pointer;" onchange="document.getElementById('eula-submit-btn').disabled = !this.checked">
+            <span style="font-size: 0.85rem; color: #374151; font-weight: 500;">Li e concordo com os Termos de Uso e Política de Privacidade.</span>
+          </label>
+          <button id="eula-submit-btn" disabled onclick="acceptEula()" style="width: 100%; padding: 14px; background: #e07a5f; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: background 0.2s;" onmouseover="if(!this.disabled) this.style.background='#d06a4f'" onmouseout="if(!this.disabled) this.style.background='#e07a5f'">
+            Aceitar e Entrar no Site
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes fadeInEula {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      body.eula-locked {
+        overflow: hidden !important;
+        height: 100vh !important;
+      }
+    </style>
+
+    <script>
+      function checkEula() {
+        if (!localStorage.getItem("brecho_ruby_eula_accepted")) {
+          document.getElementById("eula-backdrop").style.display = "flex";
+          document.body.classList.add("eula-locked");
+        }
+      }
+      
+      // Executa no load e após navegações do Turbo
+      document.addEventListener("DOMContentLoaded", checkEula);
+      document.addEventListener("turbo:load", checkEula);
+
+      function acceptEula() {
+        localStorage.setItem("brecho_ruby_eula_accepted", "true");
+        document.getElementById("eula-backdrop").style.display = "none";
+        document.body.classList.remove("eula-locked");
+      }
+    </script>
   </body>
 </html>

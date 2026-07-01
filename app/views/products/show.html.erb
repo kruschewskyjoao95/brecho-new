@@ -1,3 +1,7 @@
+<% content_for :title, "#{@product.name} | Brechó Ruby" %>
+<% content_for :meta_description, (@product.description.present? ? truncate(strip_tags(@product.description), length: 155) : "Compre #{@product.name} no Brechó Ruby. Peças de moda feminina selecionadas com curadoria única.") %>
+<% content_for :meta_image, url_for(@product.images.first) if @product.images.attached? %>
+
 <div style="margin-top: 30px;">
   <%= link_to root_path, class: "btn btn-outline btn-sm", style: "margin-bottom: 20px;" do %>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
