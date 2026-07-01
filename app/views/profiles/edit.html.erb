@@ -1,0 +1,226 @@
+<div class="checkout-box" style="max-width: 600px; margin: 40px auto; padding: 35px; background: white; border-radius: var(--radius); box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
+  
+  <div style="text-align: center; margin-bottom: 28px;">
+    <h1 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 8px; font-size: 2rem;">Meu Perfil</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Gerencie suas informações pessoais, de acesso e endereço de envio
+    </p>
+  </div>
+
+  <%= form_with model: @user, url: profile_path, method: :patch, local: true do |form| %>
+    
+    <% if @user.errors.any? %>
+      <div style="background-color: #fdf2f2; border: 1px solid #f5c2c2; color: #b91c1c; padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.9rem;">
+        <h4 style="margin-bottom: 5px; font-weight: bold;">Verifique os erros abaixo:</h4>
+        <ul style="list-style: disc; padding-left: 20px;">
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Dados Principais -->
+    <div class="form-group" style="text-align: center; margin-bottom: 24px;">
+      <div style="margin-bottom: 12px; display: inline-block; position: relative;">
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar, style: "width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);" %>
+        <% else %>
+          <div style="width: 100px; height: 100px; border-radius: 50%; background-color: #f5ece5; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 2rem; font-weight: bold; font-family: var(--font-serif);">
+            <%= @user.name[0].upcase %>
+          </div>
+        <% end %>
+      </div>
+      <div>
+        <%= form.label :avatar, "Alterar Foto de Perfil", class: "form-label", style: "display: block; margin-bottom: 6px; cursor: pointer; text-decoration: underline; color: var(--accent);" %>
+        <%= form.file_field :avatar, accept: "image/*", style: "display: none;", onchange: "this.previousElementSibling.textContent = 'Imagem Selecionada! Save para atualizar.';" %>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :name, "Nome Completo", class: "form-label" %>
+      <%= form.text_field :name, required: true, class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :email_address, "E-mail", class: "form-label" %>
+      <%= form.email_field :email_address, required: true, class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :password, "Nova Senha (deixe em branco para não alterar)", class: "form-label" %>
+      <%= form.password_field :password, placeholder: "Digite apenas se desejar mudar", class: "form-control" %>
+    </div>
+
+    <!-- Tipo de Conta (Não pode ser alterado de Admin, mas pode alternar entre Comprador e Vendedor) -->
+    <div class="form-group" style="margin-bottom: 25px;">
+      <% if @user.admin? %>
+        <%= form.label :role, "Papel do Usuário", class: "form-label" %>
+        <input type="text" value="Administrador" class="form-control" disabled style="background-color: #f5f5f5;">
+        <%= form.hidden_field :role, value: "admin" %>
+      <% else %>
+        <%= form.label :role, "Tipo de Perfil", class: "form-label" %>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 6px;">
+          <label style="border: 1px solid var(--border-color); padding: 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; cursor: pointer;" id="label-role-buyer">
+            <%= form.radio_button :role, "buyer", onchange: "toggleSellerFields(this.value)" %>
+            <span>Comprador</span>
+          </label>
+          <label style="border: 1px solid var(--border-color); padding: 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; cursor: pointer;" id="label-role-seller">
+            <%= form.radio_button :role, "seller", onchange: "toggleSellerFields(this.value)" %>
+            <span>Vendedor</span>
+          </label>
+        </div>
+      <% end %>
+    </div>
+
+    <div id="seller-address-fields" style="display: none; border-top: 1px solid var(--border-color); padding-top: 25px; margin-top: 15px;">
+      <h3 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.2rem; margin-bottom: 15px;">Endereço de Postagem (Vendedor)</h3>
+      
+      <div class="form-group" style="margin-bottom: 20px;">
+        <%= form.label :bio, "Sobre a sua Lojinha (Bio)", class: "form-label" %>
+        <%= form.text_area :bio, rows: 3, placeholder: "Conte um pouco sobre você e o estilo das suas roupas (ex: Desapegos vintage de marcas curadas com muito carinho...)", class: "form-control", style: "resize: vertical;" %>
+      </div>
+      
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :cep, "CEP de Postagem", class: "form-label" %>
+          <%= form.text_field :cep, placeholder: "Ex: 01001-000", class: "form-control", id: "seller_cep", onkeyup: "autoFillAddress(this.value)" %>
+        </div>
+        <div style="display: flex; align-items: flex-end; padding-bottom: 12px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);" id="cep-loading-text"></span>
+        </div>
+      </div>
+
+      <!-- Rua & Número -->
+      <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :address_street, "Rua / Avenida", class: "form-label" %>
+          <%= form.text_field :address_street, class: "form-control", id: "seller_street" %>
+        </div>
+        <div class="form-group">
+          <%= form.label :address_number, "Número", class: "form-label" %>
+          <%= form.text_field :address_number, class: "form-control", id: "seller_number" %>
+        </div>
+      </div>
+
+      <!-- Complemento & Bairro -->
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :address_complement, "Complemento", class: "form-label" %>
+          <%= form.text_field :address_complement, placeholder: "Ex: Apto 12", class: "form-control" %>
+        </div>
+        <div class="form-group">
+          <%= form.label :address_neighborhood, "Bairro", class: "form-label" %>
+          <%= form.text_field :address_neighborhood, class: "form-control", id: "seller_neighborhood" %>
+        </div>
+      </div>
+
+      <!-- Cidade & Estado -->
+      <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :address_city, "Cidade", class: "form-label" %>
+          <%= form.text_field :address_city, class: "form-control", id: "seller_city" %>
+        </div>
+        <div class="form-group">
+          <%= form.label :address_state, "Estado (UF)", class: "form-label" %>
+          <%= form.text_field :address_state, class: "form-control", id: "seller_state" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão de Ação -->
+    <div style="margin-top: 30px; text-align: center;">
+      <%= form.submit "Salvar Alterações", class: "btn btn-primary", style: "padding: 12px 30px; width: auto;" %>
+    </div>
+  <% end %>
+
+</div>
+
+<script>
+  function toggleSellerFields(role) {
+    const fields = document.getElementById("seller-address-fields");
+    const labelBuyer = document.getElementById("label-role-buyer");
+    const labelSeller = document.getElementById("label-role-seller");
+    const addressInputs = fields.querySelectorAll("input");
+
+    // Admins também podem ver os campos de endereço
+    if (role === "seller" || role === "admin") {
+      fields.style.display = "block";
+      if (labelSeller) {
+        labelSeller.style.borderColor = "var(--primary)";
+        labelSeller.style.backgroundColor = "#fcfaf8";
+      }
+      if (labelBuyer) {
+        labelBuyer.style.borderColor = "var(--border-color)";
+        labelBuyer.style.backgroundColor = "transparent";
+      }
+      
+      // Torna campos de endereço obrigatórios para o vendedor
+      addressInputs.forEach(input => {
+        if (input.id !== "user_address_complement") {
+          input.required = true;
+        }
+      });
+    } else {
+      fields.style.display = "none";
+      if (labelBuyer) {
+        labelBuyer.style.borderColor = "var(--primary)";
+        labelBuyer.style.backgroundColor = "#fcfaf8";
+      }
+      if (labelSeller) {
+        labelSeller.style.borderColor = "var(--border-color)";
+        labelSeller.style.backgroundColor = "transparent";
+      }
+
+      // Remove obrigatoriedade para compradores
+      addressInputs.forEach(input => {
+        input.required = false;
+      });
+    }
+  }
+
+  // Preenchimento automático do CEP via ViaCEP
+  function autoFillAddress(cepVal) {
+    const cep = cepVal.replace(/\D/g, "");
+    const loadingText = document.getElementById("cep-loading-text");
+
+    if (cep.length === 8) {
+      loadingText.textContent = "Buscando CEP...";
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(response => response.json())
+        .then(data => {
+          loadingText.textContent = "";
+          if (!data.erro) {
+            document.getElementById("seller_street").value = data.logradouro || "";
+            document.getElementById("seller_neighborhood").value = data.bairro || "";
+            document.getElementById("seller_city").value = data.localidade || "";
+            document.getElementById("seller_state").value = data.uf || "";
+            document.getElementById("seller_number").focus();
+          } else {
+            loadingText.textContent = "CEP não encontrado.";
+            loadingText.style.color = "var(--danger)";
+          }
+        })
+        .catch(err => {
+          loadingText.textContent = "Erro ao buscar CEP.";
+          loadingText.style.color = "var(--danger)";
+          console.error("Erro no ViaCEP:", err);
+        });
+    }
+  }
+
+  // Inicializa o estado com base na seleção padrão
+  document.addEventListener("DOMContentLoaded", () => {
+    // Para admin @user.role não tem input radio, então pegamos a propriedade diretamente
+    const roleValue = "<%= @user.role %>";
+    
+    if (roleValue === "admin") {
+      toggleSellerFields("admin");
+    } else {
+      const selectedRole = document.querySelector('input[name="user[role]"]:checked');
+      if (selectedRole) {
+        toggleSellerFields(selectedRole.value);
+      }
+    }
+  });
+</script>

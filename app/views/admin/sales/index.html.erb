@@ -1,0 +1,70 @@
+<div class="lookbook-title-sec" style="padding: 40px 0 20px; display:flex; justify-content:space-between; align-items:center; text-align:left;">
+  <div>
+    <h1>Minhas Vendas</h1>
+    <p>Acompanhe os pedidos de suas peças e insira os códigos de rastreamento</p>
+  </div>
+</div>
+
+<div style="display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+  <%= link_to "Minhas Peças", admin_products_path, style: "padding-bottom: 8px; color: var(--text-muted);" %>
+  <%= link_to "Minhas Vendas", admin_sales_path, style: "font-weight: bold; border-bottom: 2px solid var(--primary); padding-bottom: 8px; color: var(--primary);" %>
+  <%= link_to "Financeiro", admin_financial_path, style: "padding-bottom: 8px; color: var(--text-muted);" %>
+</div>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Pedido</th>
+      <th>Cliente</th>
+      <th>Data</th>
+      <th>Total</th>
+      <th>Status Pgto</th>
+      <th>Envio</th>
+      <th style="text-align:right;">Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if @sales.any? %>
+      <% @sales.each do |sale| %>
+        <tr>
+          <td>
+            <strong>#<%= sale.id %></strong>
+          </td>
+          <td>
+            <strong><%= sale.customer_name %></strong> <br>
+            <span style="font-size:0.8rem; color:var(--text-muted);"><%= sale.customer_phone %></span>
+          </td>
+          <td>
+            <%= sale.created_at.strftime("%d/%m/%Y %H:%M") %>
+          </td>
+          <td>
+            R$ <%= number_with_precision(sale.total, precision: 2) %>
+          </td>
+          <td>
+            <% status_colors = { 'pending' => 'orange', 'paid' => 'green', 'shipped' => 'blue', 'completed' => 'teal', 'cancelled' => 'red' } %>
+            <% status_names = { 'pending' => 'Pendente', 'paid' => 'Pago', 'shipped' => 'Enviado', 'completed' => 'Finalizado', 'cancelled' => 'Cancelado' } %>
+            <span class="badge-tag" style="position:static; background-color: <%= status_colors[sale.status] || 'gray' %>;">
+              <%= status_names[sale.status] || sale.status.titleize %>
+            </span>
+          </td>
+          <td>
+            <% shipping_colors = { 'pending_shipment' => 'orange', 'shipped' => 'blue', 'delivered' => 'green' } %>
+            <% shipping_names = { 'pending_shipment' => 'Pendente', 'shipped' => 'Enviado', 'delivered' => 'Entregue' } %>
+            <span class="badge-tag" style="position:static; background-color: <%= shipping_colors[sale.shipping_status] || 'gray' %>;">
+              <%= shipping_names[sale.shipping_status] || sale.shipping_status.to_s.titleize %>
+            </span>
+          </td>
+          <td style="text-align:right;">
+            <%= link_to "Detalhes / Rastreio", admin_sale_path(sale), class: "btn btn-outline btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr>
+        <td colspan="7" style="text-align:center; padding: 40px; color:var(--text-muted); font-style:italic;">
+          Nenhuma venda registrada até o momento.
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

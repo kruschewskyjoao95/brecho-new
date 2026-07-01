@@ -1,0 +1,171 @@
+<div class="seller-profile-header" style="background: white; border-radius: var(--radius); padding: 40px; margin-top: 30px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
+  
+  <!-- Seller Avatar / Photo -->
+  <div style="flex-shrink: 0;">
+    <% if @seller.avatar.attached? %>
+      <%= image_tag @seller.avatar, style: "width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-color);" %>
+    <% else %>
+      <div style="width: 120px; height: 120px; border-radius: 50%; background-color: #f5ece5; border: 3px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 2.5rem; font-weight: bold; font-family: var(--font-serif);">
+        <%= @seller.name[0].upcase %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Seller Details -->
+  <div style="flex-grow: 1; min-width: 250px;">
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;">
+      <h1 style="font-family: var(--font-serif); color: var(--primary); margin: 0; font-size: 2rem;"><%= @seller.name %></h1>
+      <span class="badge-tag" style="position: static; background-color: var(--success); color: white;">Vendedor Verificado</span>
+    </div>
+
+    <% if @seller.address_city.present? && @seller.address_state.present? %>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <%= @seller.address_city %> - <%= @seller.address_state %>
+      </p>
+    <% end %>
+
+    <% if @seller.rating_stars_count > 0 %>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 1.1rem; color: #ffc107;">
+        <span>
+          <% @seller.rating_average.round.times do %>
+            ★
+          <% end %>
+          <% (5 - @seller.rating_average.round).times do %>
+            <span style="color:#e2e8f0;">★</span>
+          <% end %>
+        </span>
+        <span style="color: var(--text-dark); font-size: 0.88rem; font-weight: 600;">
+          <%= number_with_precision(@seller.rating_average, precision: 1) %> 
+          (<%= @seller.rating_stars_count %> <%= @seller.rating_stars_count == 1 ? 'avaliação' : 'avaliações' %>)
+        </span>
+      </div>
+    <% else %>
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; font-style: italic;">
+        Nenhuma avaliação recebida ainda.
+      </div>
+    <% end %>
+
+    <div style="font-size: 0.95rem; line-height: 1.6; color: var(--text-dark); max-width: 600px;">
+      <% if @seller.bio.present? %>
+        <p><%= @seller.bio %></p>
+      <% else %>
+        <p style="font-style: italic; color: var(--text-muted);">Este vendedor ainda não escreveu uma bio, mas suas peças curadas estão listadas abaixo!</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Stats Box -->
+  <div style="background-color: #fdfcfb; padding: 20px 30px; border-radius: var(--radius-sm); border: 1px dashed var(--border-color); text-align: center; min-width: 150px; flex-shrink: 0;">
+    <span style="font-size: 2rem; font-weight: bold; color: var(--primary); display: block; line-height: 1.1;"><%= @products.count %></span>
+    <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Peças Ativas</span>
+  </div>
+
+</div>
+
+<!-- Products Grid Header -->
+<div class="lookbook-title-sec" style="margin-top: 40px; margin-bottom: 20px; text-align: left;">
+  <h2 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.6rem; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Vitrine do Vendedor</h2>
+</div>
+
+<!-- Products Grid -->
+<div class="products-grid">
+  <% if @products.any? %>
+    <% @products.each do |product| %>
+      <div class="product-card" style="position: relative;">
+        <%= render "favorites/button", product: product %>
+        <%= link_to product_path(product) do %>
+          <div class="product-image-wrapper">
+            <% if product.price_promo_cents.present? %>
+              <span class="badge-promo">PROMO</span>
+            <% end %>
+            <span class="badge-tag"><%= product.category %></span>
+            
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first %>
+            <% else %>
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #eae5e1; color: var(--text-muted);">
+                Sem Imagem
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <div class="product-info">
+          <div class="product-cat"><%= product.category %></div>
+          <%= link_to product_path(product) do %>
+            <h3 class="product-title"><%= product.name %></h3>
+          <% end %>
+          
+          <div class="product-price-box">
+            <% if product.price_promo_cents.present? %>
+              <span class="price-original has-discount">R$ <%= number_with_precision(product.price, precision: 2) %></span>
+              <span class="price-promo-val">R$ <%= number_with_precision(product.price_promo, precision: 2) %></span>
+            <% else %>
+              <span class="price-original">R$ <%= number_with_precision(product.price, precision: 2) %></span>
+            <% end %>
+          </div>
+          
+          <div class="price-installments-val">
+            ou 12x de R$ <%= number_with_precision(product.price_installments, precision: 2) %> sem juros
+          </div>
+          
+          <div class="product-actions-btn">
+            <% if product.in_stock? %>
+              <%= form_with url: cart_items_path(product_id: product.id, quantity: 1), method: :post, data: { turbo_frame: "cart_drawer_content" } do %>
+                <%= button_tag type: 'submit', class: "btn btn-primary btn-sm", style: "width: 100%;", data: { action: "click->cart-drawer#open" } do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                  Adicionar à Sacola
+                <% end %>
+              <% end %>
+            <% else %>
+              <button class="btn btn-outline btn-sm" style="width: 100%; cursor: not-allowed;" disabled>Esgotado</button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: white; border-radius: var(--radius); border: 1px solid var(--border-color); color: var(--text-muted); font-style: italic;">
+      Este vendedor não possui peças ativas no momento.
+    </div>
+  <% end %>
+</div>
+
+<!-- Seção de Avaliações -->
+<div style="margin-top: 50px; margin-bottom: 50px; background: white; padding: 40px; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+  <h2 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.5rem; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Opiniões dos Compradores</h2>
+  
+  <% if @seller.reviews_as_seller.any? %>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <% @seller.reviews_as_seller.order(created_at: :desc).each do |review| %>
+        <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <span style="color: #ffc107; font-size: 1.2rem;">
+                <% review.rating.times do %>
+                  ★
+                <% end %>
+                <% (5 - review.rating).times do %>
+                  <span style="color:#e2e8f0;">★</span>
+                <% end %>
+              </span>
+              <strong style="margin-left: 8px; font-size: 0.95rem; color: var(--text-dark);">
+                <%= review.buyer ? review.buyer.name : "Comprador Anônimo" %>
+              </strong>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);"><%= review.created_at.strftime("%d/%m/%Y") %></span>
+          </div>
+          
+          <% if review.comment.present? %>
+            <p style="font-size: 0.92rem; line-height: 1.5; color: var(--text-dark); margin: 8px 0 0; font-style: italic;">
+              "<%= review.comment %>"
+            </p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p style="font-style: italic; color: var(--text-muted); margin: 0; text-align: center; padding: 20px 0;">Este vendedor ainda não recebeu avaliações.</p>
+  <% end %>
+</div>

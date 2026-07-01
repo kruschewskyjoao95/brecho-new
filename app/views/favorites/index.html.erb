@@ -1,0 +1,71 @@
+<div class="lookbook-title-sec" style="padding: 40px 0 20px; text-align: left;">
+  <h1>Meus Favoritos</h1>
+  <p>Suas peças preferidas curadas e salvas em sua lista de desejos</p>
+</div>
+
+<!-- Favorites Grid -->
+<div class="products-grid">
+  <% if @favorite_products.any? %>
+    <% @favorite_products.each do |product| %>
+      <div class="product-card" style="position: relative;">
+        <%= render "favorites/button", product: product %>
+        <%= link_to product_path(product) do %>
+          <div class="product-image-wrapper">
+            <% if product.price_promo_cents.present? %>
+              <span class="badge-promo">PROMO</span>
+            <% end %>
+            <span class="badge-tag"><%= product.category %></span>
+            
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first %>
+            <% else %>
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #eae5e1; color: var(--text-muted);">
+                Sem Imagem
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        
+        <div class="product-info">
+          <div class="product-cat"><%= product.category %></div>
+          <%= link_to product_path(product) do %>
+            <h3 class="product-title"><%= product.name %></h3>
+          <% end %>
+          
+          <div class="product-price-box">
+            <% if product.price_promo_cents.present? %>
+              <span class="price-original has-discount">R$ <%= number_with_precision(product.price, precision: 2) %></span>
+              <span class="price-promo-val">R$ <%= number_with_precision(product.price_promo, precision: 2) %></span>
+            <% else %>
+              <span class="price-original">R$ <%= number_with_precision(product.price, precision: 2) %></span>
+            <% end %>
+          </div>
+          
+          <div class="price-installments-val">
+            ou 12x de R$ <%= number_with_precision(product.price_installments, precision: 2) %> sem juros
+          </div>
+          
+          <div class="product-actions-btn">
+            <% if product.in_stock? %>
+              <%= form_with url: cart_items_path(product_id: product.id, quantity: 1), method: :post, data: { turbo_frame: "cart_drawer_content" } do %>
+                <%= button_tag type: 'submit', class: "btn btn-primary btn-sm", style: "width: 100%;", data: { action: "click->cart-drawer#open" } do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                  Adicionar à Sacola
+                <% end %>
+              <% end %>
+            <% else %>
+              <button class="btn btn-outline btn-sm" style="width: 100%; cursor: not-allowed;" disabled>Esgotado</button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: white; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); margin-bottom: 15px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+      <h3 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 8px; border:none; padding:0;">Sua lista de favoritos está vazia</h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px;">Favoritando peças no catálogo, elas aparecerão reunidas aqui para você acompanhar.</p>
+      <%= link_to "Explorar Peças", root_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

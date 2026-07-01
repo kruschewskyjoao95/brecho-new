@@ -1,0 +1,25 @@
+<%= turbo_stream.update "product-shipping-results" do %>
+  <% if @shipping_options.any? %>
+    <div style="margin-top: 15px; background: white; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: flex; flex-direction: column; gap: 12px; animation: fadeIn 0.3s ease; text-align: left;">
+      <p style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; color: var(--primary);">
+        Valores para entrega em:<br>
+        <span style="font-weight: normal; font-size: 0.85rem; color: var(--text-dark); display: block; margin-top: 2px;">
+          <%= @street %>, nº <%= @number %> - CEP: <%= @cep %>
+        </span>
+      </p>
+      <% @shipping_options.each do |opt| %>
+        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; align-items: center;">
+          <div>
+            <strong><%= opt[:name] %></strong> <br>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Entrega em até <%= opt[:days] %> dias úteis</span>
+          </div>
+          <strong style="color: var(--primary);">R$ <%= number_with_precision(opt[:price], precision: 2) %></strong>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p style="color: var(--danger); font-size: 0.9rem; margin-top: 10px; font-style: italic; text-align: left;">
+      CEP inválido. Digite apenas os 8 números (ex: 01310100).
+    </p>
+  <% end %>
+<% end %>

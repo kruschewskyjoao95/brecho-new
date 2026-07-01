@@ -1,0 +1,116 @@
+<%= form_with model: [:admin, product], local: true, html: { multipart: true } do |f| %>
+  
+  <% if product.errors.any? %>
+    <div class="flash-message flash-alert" style="margin-bottom:20px; display:block;">
+      <h4 style="margin-bottom:8px;">Por favor, corrija os erros abaixo:</h4>
+      <ul style="padding-left:20px; font-size:0.9rem;">
+        <% product.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="checkout-box">
+    <h2>Informações Gerais</h2>
+    
+    <div class="form-group">
+      <%= f.label :name, "Nome da Peça", class: "form-label" %>
+      <%= f.text_field :name, class: "form-control", placeholder: "Ex: Vestido Midi Amalie", required: true %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :description, "Descrição Completa (Tecido, caimento, cuidados)", class: "form-label" %>
+      <%= f.text_area :description, class: "form-control", rows: 4, placeholder: "Detalhes sobre o material, forro, se estica..." %>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <%= f.label :category, "Categoria", class: "form-label" %>
+        <%= f.select :category, ["Vestidos", "Blusas", "Calças", "Saias", "Conjuntos", "Moda Praia", "Casacos"], { prompt: "Selecione uma categoria" }, { class: "form-control", required: true } %>
+      </div>
+      <div class="form-group">
+        <%= f.label :stock, "Estoque Disponível", class: "form-label" %>
+        <%= f.number_field :stock, class: "form-control", min: 0, required: true %>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <%= f.label :sizes, "Tamanhos (Separados por vírgula)", class: "form-label" %>
+        <%= f.text_field :sizes, class: "form-control", placeholder: "Ex: P, M, G" %>
+      </div>
+      <div class="form-group">
+        <%= f.label :colors, "Cores (Separadas por vírgula)", class: "form-label" %>
+        <%= f.text_field :colors, class: "form-control", placeholder: "Ex: Bege, Off-white" %>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <%= f.label :brand, "Marca", class: "form-label" %>
+        <%= f.text_field :brand, class: "form-control", placeholder: "Ex: Farm, Zara, Animale" %>
+      </div>
+      <div class="form-group">
+        <%= f.label :condition, "Estado de Conservação", class: "form-label" %>
+        <%= f.select :condition, [["Novo com etiqueta", "new_with_tags"], ["Gentilmente usado", "gently_used"], ["Vintage", "vintage"]], { prompt: "Selecione a condição" }, { class: "form-control" } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="checkout-box">
+    <h2>Preços</h2>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <%= f.label :price, "Preço Regular (R$)", class: "form-label" %>
+        <%= f.number_field :price, step: "0.01", class: "form-control", placeholder: "0.00", required: true %>
+      </div>
+      <div class="form-group">
+        <%= f.label :price_promo, "Preço à Vista / Desconto Pix (R$)", class: "form-label" %>
+        <%= f.number_field :price_promo, step: "0.01", class: "form-control", placeholder: "Opcional (Deixe em branco se não houver desconto)" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="checkout-box">
+    <h2>Galeria de Fotos</h2>
+    
+    <div class="form-group">
+      <%= f.label :images, "Selecionar Imagens da Peça", class: "form-label" %>
+      <%= f.file_field :images, multiple: true, class: "form-control", accept: "image/*" %>
+      <small style="color:var(--text-muted); display:block; margin-top:6px;">
+        Você pode selecionar várias fotos de uma vez (frontal, traseira, detalhes).
+      </small>
+    </div>
+
+    <% if product.images.attached? %>
+      <div style="margin-top:20px;">
+        <label class="form-label">Fotos Atuais:</label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+          <% product.images.each do |img| %>
+            <%= image_tag img, style: "width: 80px; height: 110px; object-fit: cover; border-radius: 4px; border:1px solid var(--border-color);" %>
+          <% end %>
+        </div>
+        
+        <div style="margin-top:15px; display:flex; align-items:center; gap:8px;">
+          <%= f.check_box :purge_images %>
+          <%= f.label :purge_images, "Apagar fotos existentes e substituir pelas novas", style: "font-size:0.9rem; color:var(--danger); cursor:pointer;" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="checkout-box" style="display:flex; justify-content:space-between; align-items:center;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <%= f.check_box :active, style: "width:18px; height:18px;" %>
+      <%= f.label :active, "Peça ativa (Visível no catálogo)", style: "font-weight:600; cursor:pointer;" %>
+    </div>
+    
+    <div style="display:flex; gap:12px;">
+      <%= link_to "Cancelar", admin_products_path, class: "btn btn-outline" %>
+      <%= f.submit "Salvar Peça", class: "btn btn-primary" %>
+    </div>
+  </div>
+
+<% end %>

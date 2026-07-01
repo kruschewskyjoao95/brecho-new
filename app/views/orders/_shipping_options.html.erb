@@ -1,0 +1,21 @@
+<div class="shipping-options-list">
+  <% if shipping_options.any? %>
+    <% shipping_options.each_with_index do |opt, idx| %>
+      <div class="shipping-option-item">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="radio" id="shipping_<%= opt[:id] %>" name="shipping_option" value="<%= opt[:id] %>" <%= 'checked' if idx == 0 %>
+                 data-price="<%= opt[:price] %>" data-name="<%= opt[:name] %>" data-action="change->checkout#updateTotal">
+          <label for="shipping_<%= opt[:id] %>" style="cursor:pointer; font-weight:500;">
+            <%= opt[:name] %> <br>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Entrega em até <%= opt[:days] %> dias úteis</span>
+          </label>
+        </div>
+        <span style="font-weight:bold; color: var(--primary);">R$ <%= number_with_precision(opt[:price], precision: 2) %></span>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="color:var(--danger); font-size:0.9rem; font-style:italic;">
+      CEP inválido ou sem cobertura de frete. Por favor, tente outro CEP de 8 dígitos.
+    </p>
+  <% end %>
+</div>

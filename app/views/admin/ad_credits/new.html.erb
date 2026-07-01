@@ -1,0 +1,25 @@
+<div class="container" style="max-width: 600px; margin: 40px auto; text-align: center;">
+  <div style="background: white; padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+    <h2 style="font-size: 1.5rem; margin-bottom: 20px; color: var(--text-main);">Limite de Anúncios Grátis Atingido</h2>
+    
+    <p style="color: var(--text-light); margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6;">
+      Você já utilizou seus <strong>2 anúncios gratuitos</strong> deste mês. Para postar mais peças e alavancar suas vendas, adquira um anúncio extra.
+    </p>
+
+    <div style="background: var(--bg-body); padding: 20px; border-radius: var(--radius-md); margin-bottom: 30px;">
+      <h3 style="font-size: 1.2rem; margin-bottom: 10px;">1 Anúncio Extra</h3>
+      <ul style="list-style: none; padding: 0; margin-bottom: 15px; color: var(--text-light); text-align: left; display: inline-block;">
+        <li>✅ Até 5 fotos de alta qualidade</li>
+        <li>✅ Destaque no feed</li>
+        <li>✅ Sem validade para uso</li>
+      </ul>
+      <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">R$ 5,99</div>
+    </div>
+
+    <%= button_to "Pagar R$ 5,99 (Simulação)", admin_ad_credits_path, method: :post, class: "btn btn-primary", style: "width: 100%; padding: 15px; font-size: 1.1rem; border-radius: var(--radius-md);" %>
+    
+    <div style="margin-top: 20px;">
+      <%= link_to "Voltar para Meus Anúncios", admin_products_path, class: "btn", style: "color: var(--text-light);" %>
+    </div>
+  </div>
+</div>

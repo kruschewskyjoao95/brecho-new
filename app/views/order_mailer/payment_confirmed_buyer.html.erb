@@ -1,0 +1,64 @@
+<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #fcf9f5; color: #2d241e; border: 1px solid #eaddd3; border-radius: 12px;">
+  
+  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #5c3d2e; padding-bottom: 15px;">
+    <h1 style="color: #5c3d2e; font-family: Georgia, serif; margin: 0; font-size: 24px;">Brechó Ruby</h1>
+    <p style="color: #c89666; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 5px 0 0;">Lookbook & Bazar</p>
+  </div>
+
+  <h2 style="color: #5c3d2e; font-family: Georgia, serif; font-size: 20px; margin-top: 0;">Oba! Seu pagamento foi confirmado! 🎉</h2>
+  
+  <p style="font-size: 15px; line-height: 1.6;">
+    Olá, <strong><%= @order.customer_name %></strong>, tudo bem?
+  </p>
+  <p style="font-size: 15px; line-height: 1.6;">
+    Confirmamos o pagamento do seu pedido <strong>##{@order.id}</strong>. O vendedor já foi notificado e está preparando o pacote para envio.
+  </p>
+
+  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #eaddd3; margin: 25px 0;">
+    <h3 style="color: #5c3d2e; font-family: Georgia, serif; font-size: 16px; margin-top: 0; border-bottom: 1px dashed #eaddd3; padding-bottom: 8px;">Resumo do Pedido ##{@order.id}</h3>
+    
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <tbody>
+        <% @order.order_items.includes(:product).each do |item| %>
+          <tr>
+            <td style="padding: 8px 0; color: #2d241e;">
+              <%= item.product.name %> (x<%= item.quantity %>)
+              <% if item.size.present? || item.color.present? %>
+                <br><span style="font-size: 12px; color: #837265;"><%= [item.size, item.color].compact.join(" / ") %></span>
+              <% end %>
+            </td>
+            <td style="padding: 8px 0; text-align: right; font-weight: bold; color: #5c3d2e;">
+              R$ <%= number_with_precision(item.price_cents / 100.0 * item.quantity, precision: 2) %>
+            </td>
+          </tr>
+        <% end %>
+        
+        <tr style="border-top: 1px dashed #eaddd3;">
+          <td style="padding: 8px 0; color: #837265;">Frete (<%= @order.shipping_method %>):</td>
+          <td style="padding: 8px 0; text-align: right; color: #2d241e; font-weight: bold;">R$ <%= number_with_precision(@order.shipping_cost, precision: 2) %></td>
+        </tr>
+        
+        <tr style="border-top: 1px solid #eaddd3; font-size: 16px; font-weight: bold;">
+          <td style="padding: 12px 0 0; color: #5c3d2e;">Total Pago:</td>
+          <td style="padding: 12px 0 0; text-align: right; color: #5c3d2e;">R$ <%= number_with_precision(@order.total, precision: 2) %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background-color: #f7ede2; padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.5; color: #837265; border-left: 4px solid #c89666; margin-bottom: 25px;">
+    <strong>Endereço de Entrega:</strong><br>
+    <%= @order.shipping_address %> <br>
+    CEP: <%= @order.shipping_cep %>
+  </div>
+
+  <p style="font-size: 15px; line-height: 1.6; margin-bottom: 30px;">
+    Assim que o vendedor postar a encomenda nos Correios e cadastrar o código de rastreamento, nós te enviaremos outro e-mail para você acompanhar a entrega!
+  </p>
+
+  <div style="text-align: center; margin-top: 30px; border-top: 1px solid #eaddd3; padding-top: 20px; font-size: 12px; color: #837265;">
+    <p>Este é um e-mail automático enviado pelo Brechó Ruby. Por favor, não responda diretamente.</p>
+    <p>© 2026 Brechó Ruby Lookbook. Todos os direitos reservados.</p>
+  </div>
+
+</div>

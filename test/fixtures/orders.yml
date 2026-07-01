@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  status: MyString
+  shipping_cep: MyString
+  shipping_address: MyText
+  shipping_cost_cents: 1
+  shipping_method: MyString
+  payment_method: MyString
+  payment_id: MyString
+  payment_pix_qr_code: MyText
+  payment_pix_copia_cola: MyText
+  total_cents: 1
+
+two:
+  user: two
+  status: MyString
+  shipping_cep: MyString
+  shipping_address: MyText
+  shipping_cost_cents: 1
+  shipping_method: MyString
+  payment_method: MyString
+  payment_id: MyString
+  payment_pix_qr_code: MyText
+  payment_pix_copia_cola: MyText
+  total_cents: 1

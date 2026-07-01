@@ -1,0 +1,188 @@
+<div class="checkout-box" style="max-width: 550px; margin: 40px auto; padding: 35px; background: white; border-radius: var(--radius); box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
+  
+  <div style="text-align: center; margin-bottom: 28px;">
+    <h1 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 8px; font-size: 2rem;">Criar Conta</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Cadastre-se para comprar ou vender peças exclusivas no lookbook
+    </p>
+  </div>
+
+  <%= form_with model: @user, url: registrations_path, local: true, id: "signup-form" do |form| %>
+    
+    <% if @user.errors.any? %>
+      <div style="background-color: #fdf2f2; border: 1px solid #f5c2c2; color: #b91c1c; padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.9rem;">
+        <h4 style="margin-bottom: 5px; font-weight: bold;">Verifique os erros abaixo:</h4>
+        <ul style="list-style: disc; padding-left: 20px;">
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Dados Principais -->
+    <div class="form-group">
+      <%= form.label :name, "Nome Completo", class: "form-label" %>
+      <%= form.text_field :name, required: true, placeholder: "Ex: Maria da Silva", class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :email_address, "E-mail", class: "form-label" %>
+      <%= form.email_field :email_address, required: true, placeholder: "seu@email.com", class: "form-control" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :password, "Senha", class: "form-label" %>
+      <%= form.password_field :password, required: true, placeholder: "Crie uma senha forte", class: "form-control" %>
+    </div>
+
+    <!-- Escolha do Papel (Comprador vs Vendedor) -->
+    <div class="form-group" style="margin-bottom: 25px;">
+      <%= form.label :role, "Eu quero:", class: "form-label" %>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 6px;">
+        <label style="border: 1px solid var(--border-color); padding: 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; cursor: pointer;" id="label-role-buyer">
+          <%= form.radio_button :role, "buyer", checked: true, onchange: "toggleSellerFields(this.value)" %>
+          <span>Apenas Comprar</span>
+        </label>
+        <label style="border: 1px solid var(--border-color); padding: 12px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; cursor: pointer;" id="label-role-seller">
+          <%= form.radio_button :role, "seller", onchange: "toggleSellerFields(this.value)" %>
+          <span>Vender minhas peças</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Campos de Endereço do Vendedor (Ocultos por padrão para compradores) -->
+    <div id="seller-address-fields" style="display: none; border-top: 1px solid var(--border-color); padding-top: 25px; margin-top: 15px;">
+      <h3 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.2rem; margin-bottom: 15px;">Endereço de Postagem (Vendedor)</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+        Essas informações serão usadas para calcular o frete das suas vendas e emitir as etiquetas de envio dos Correios.
+      </p>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :cep, "CEP", class: "form-label" %>
+          <%= form.text_field :cep, placeholder: "Ex: 01001-000", class: "form-control", id: "seller_cep", onkeyup: "autoFillAddress(this.value)" %>
+        </div>
+        <div style="display: flex; align-items: flex-end; padding-bottom: 12px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);" id="cep-loading-text"></span>
+        </div>
+      </div>
+
+      <!-- Rua & Número -->
+      <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :address_street, "Rua / Avenida", class: "form-label" %>
+          <%= form.text_field :address_street, placeholder: "Nome da rua", class: "form-control", id: "seller_street" %>
+        </div>
+        <div class="form-group">
+          <%= form.label :address_number, "Número", class: "form-label" %>
+          <%= form.text_field :address_number, placeholder: "123", class: "form-control", id: "seller_number" %>
+        </div>
+      </div>
+
+      <!-- Complemento & Bairro -->
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :address_complement, "Complemento (Opcional)", class: "form-label" %>
+          <%= form.text_field :address_complement, placeholder: "Ex: Apto 12", class: "form-control" %>
+        </div>
+        <div class="form-group">
+          <%= form.label :address_neighborhood, "Bairro", class: "form-label" %>
+          <%= form.text_field :address_neighborhood, placeholder: "Bairro", class: "form-control", id: "seller_neighborhood" %>
+        </div>
+      </div>
+
+      <!-- Cidade & Estado -->
+      <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="form-group">
+          <%= form.label :address_city, "Cidade", class: "form-label" %>
+          <%= form.text_field :address_city, placeholder: "Cidade", class: "form-control", id: "seller_city" %>
+        </div>
+        <div class="form-group">
+          <%= form.label :address_state, "Estado (UF)", class: "form-label" %>
+          <%= form.text_field :address_state, placeholder: "UF", class: "form-control", id: "seller_state" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão de Ação -->
+    <div style="margin-top: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+      <%= form.submit "Criar Minha Conta", class: "btn btn-primary", style: "width: 100%; padding: 12px;" %>
+      <%= link_to "Já tem uma conta? Entre aqui", new_session_path, style: "font-size: 0.9rem; color: var(--accent);" %>
+    </div>
+  <% end %>
+
+</div>
+
+<script>
+  function toggleSellerFields(role) {
+    const fields = document.getElementById("seller-address-fields");
+    const labelBuyer = document.getElementById("label-role-buyer");
+    const labelSeller = document.getElementById("label-role-seller");
+    const addressInputs = fields.querySelectorAll("input");
+
+    if (role === "seller") {
+      fields.style.display = "block";
+      labelSeller.style.borderColor = "var(--primary)";
+      labelSeller.style.backgroundColor = "#fcfaf8";
+      labelBuyer.style.borderColor = "var(--border-color)";
+      labelBuyer.style.backgroundColor = "transparent";
+      
+      // Torna campos de endereço obrigatórios para o vendedor
+      addressInputs.forEach(input => {
+        if (input.id !== "user_address_complement") {
+          input.required = true;
+        }
+      });
+    } else {
+      fields.style.display = "none";
+      labelBuyer.style.borderColor = "var(--primary)";
+      labelBuyer.style.backgroundColor = "#fcfaf8";
+      labelSeller.style.borderColor = "var(--border-color)";
+      labelSeller.style.backgroundColor = "transparent";
+
+      // Remove obrigatoriedade para compradores
+      addressInputs.forEach(input => {
+        input.required = false;
+      });
+    }
+  }
+
+  // Preenchimento automático do CEP via ViaCEP
+  function autoFillAddress(cepVal) {
+    const cep = cepVal.replace(/\D/g, "");
+    const loadingText = document.getElementById("cep-loading-text");
+
+    if (cep.length === 8) {
+      loadingText.textContent = "Buscando CEP...";
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(response => response.json())
+        .then(data => {
+          loadingText.textContent = "";
+          if (!data.erro) {
+            document.getElementById("seller_street").value = data.logradouro || "";
+            document.getElementById("seller_neighborhood").value = data.bairro || "";
+            document.getElementById("seller_city").value = data.localidade || "";
+            document.getElementById("seller_state").value = data.uf || "";
+            document.getElementById("seller_number").focus();
+          } else {
+            loadingText.textContent = "CEP não encontrado.";
+            loadingText.style.color = "var(--danger)";
+          }
+        })
+        .catch(err => {
+          loadingText.textContent = "Erro ao buscar CEP.";
+          loadingText.style.color = "var(--danger)";
+          console.error("Erro no ViaCEP:", err);
+        });
+    }
+  }
+
+  // Inicializa o estado com base na seleção padrão
+  document.addEventListener("DOMContentLoaded", () => {
+    const selectedRole = document.querySelector('input[name="user[role]"]:checked');
+    if (selectedRole) {
+      toggleSellerFields(selectedRole.value);
+    }
+  });
+</script>

@@ -1,0 +1,95 @@
+<div class="admin-header">
+  <div>
+    <h1>Ofertas e Negociações</h1>
+    <p style="color:var(--text-muted);">Gerencie as propostas de compra dos seus clientes.</p>
+  </div>
+</div>
+
+<div class="admin-panel" style="margin-top: 30px;">
+  <h2>Ofertas Recebidas</h2>
+  <% if @received_offers.any? %>
+    <table class="table" style="margin-top: 20px;">
+      <thead>
+        <tr>
+          <th>Peça</th>
+          <th>Comprador</th>
+          <th>Oferta (R$)</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th style="text-align:right;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @received_offers.each do |offer| %>
+          <tr>
+            <td>
+              <%= link_to offer.product.name, product_path(offer.product), target: "_blank", style: "color:var(--primary); text-decoration:underline;" %>
+            </td>
+            <td><%= offer.buyer.name %></td>
+            <td><strong>R$ <%= number_with_precision(offer.amount, precision: 2) %></strong></td>
+            <td>
+              <% case offer.status %>
+              <% when "pending" %>
+                <span class="badge-tag" style="background-color:#fff3cd; color:#856404;">Pendente</span>
+              <% when "accepted" %>
+                <span class="badge-tag" style="background-color:#d4edda; color:#155724;">Aceita</span>
+              <% when "rejected" %>
+                <span class="badge-tag" style="background-color:#f8d7da; color:#721c24;">Recusada</span>
+              <% end %>
+            </td>
+            <td><%= offer.created_at.strftime("%d/%m/%Y") %></td>
+            <td style="text-align:right;">
+              <% if offer.status == "pending" %>
+                <div style="display:inline-flex; gap:8px;">
+                  <%= button_to "Aceitar", admin_offer_path(offer), params: { offer_action: "accept" }, method: :patch, class: "btn btn-sm btn-primary" %>
+                  <%= button_to "Recusar", admin_offer_path(offer), params: { offer_action: "reject" }, method: :patch, class: "btn btn-sm btn-outline", style: "border-color:var(--danger); color:var(--danger);" %>
+                </div>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p style="color:var(--text-muted); margin-top: 15px;">Nenhuma oferta recebida ainda.</p>
+  <% end %>
+</div>
+
+<div class="admin-panel" style="margin-top: 30px;">
+  <h2>Minhas Ofertas Feitas</h2>
+  <% if @made_offers.any? %>
+    <table class="table" style="margin-top: 20px;">
+      <thead>
+        <tr>
+          <th>Peça</th>
+          <th>Oferta (R$)</th>
+          <th>Status</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @made_offers.each do |offer| %>
+          <tr>
+            <td>
+              <%= link_to offer.product.name, product_path(offer.product), target: "_blank", style: "color:var(--primary); text-decoration:underline;" %>
+            </td>
+            <td><strong>R$ <%= number_with_precision(offer.amount, precision: 2) %></strong></td>
+            <td>
+              <% case offer.status %>
+              <% when "pending" %>
+                <span class="badge-tag" style="background-color:#fff3cd; color:#856404;">Aguardando Vendedor</span>
+              <% when "accepted" %>
+                <span class="badge-tag" style="background-color:#d4edda; color:#155724;">Aceita (Compre Agora!)</span>
+              <% when "rejected" %>
+                <span class="badge-tag" style="background-color:#f8d7da; color:#721c24;">Recusada</span>
+              <% end %>
+            </td>
+            <td><%= offer.created_at.strftime("%d/%m/%Y") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p style="color:var(--text-muted); margin-top: 15px;">Você não fez nenhuma oferta ainda.</p>
+  <% end %>
+</div>

@@ -1,0 +1,273 @@
+<div style="margin-top: 30px;">
+  <%= link_to root_path, class: "btn btn-outline btn-sm", style: "margin-bottom: 20px;" do %>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    Voltar ao Catálogo
+  <% end %>
+</div>
+
+<div class="product-detail-layout">
+  <!-- Left Column: Gallery -->
+  <div class="product-gallery">
+    <div class="gallery-main">
+      <% if @product.images.attached? %>
+        <%= image_tag @product.images.first, id: "main-product-image" %>
+      <% else %>
+        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #eae5e1; color: var(--text-muted); font-size: 1.2rem;">
+          Sem Foto
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @product.images.attached? && @product.images.count > 1 %>
+      <div class="gallery-thumbs">
+        <% @product.images.each_with_index do |image, idx| %>
+          <div class="thumb-item <%= 'active' if idx == 0 %>" 
+               data-src="<%= url_for(image) %>" 
+               onclick="document.getElementById('main-product-image').src = this.dataset.src; document.querySelectorAll('.thumb-item').forEach(el => el.classList.remove('active')); this.classList.add('active');">
+            <%= image_tag image %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Right Column: Specs -->
+  <div class="product-specs">
+    <span class="badge-tag" style="position:static; display:inline-block; margin-bottom:15px;"><%= @product.category %></span>
+    <h1 class="specs-title" style="margin-bottom: 5px;"><%= @product.name %></h1>
+    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+      Vendido por: 
+      <% if @product.seller.present? %>
+        <%= link_to @product.seller.name, seller_path(@product.seller), style: "color: var(--primary); font-weight: 600; text-decoration: underline;" %>
+      <% else %>
+        <strong style="color: var(--primary);">Brechó Ruby</strong>
+      <% end %>
+    </div>
+    
+    <div class="specs-price-box">
+      <% if @product.price_promo_cents.present? %>
+        <div style="display:flex; align-items:baseline; gap:12px;">
+          <span class="price-original has-discount" style="font-size:1.4rem;">R$ <%= number_with_precision(@product.price, precision: 2) %></span>
+          <span class="price-promo-val" style="font-size:2.2rem;">R$ <%= number_with_precision(@product.price_promo, precision: 2) %></span>
+        </div>
+        <div style="color:var(--success); font-weight:600; font-size:0.95rem; margin-top:4px;">
+          Economize 10% no PIX!
+        </div>
+      <% else %>
+        <span class="price-original" style="font-size:2rem;">R$ <%= number_with_precision(@product.price, precision: 2) %></span>
+      <% end %>
+      
+      <div class="price-installments-val" style="font-size:1.05rem; margin-top:8px; margin-bottom:0;">
+        ou em até **12x de R$ <%= number_with_precision(@product.price_installments, precision: 2) %>** sem juros no cartão de crédito.
+      </div>
+    </div>
+
+    <div class="specs-desc">
+      <p><%= @product.description %></p>
+    </div>
+
+    <%= form_with url: cart_items_path(product_id: @product.id), method: :post, data: { turbo_frame: "cart_drawer_content" } do %>
+      <% if @product.sizes.present? %>
+        <div class="specs-item">
+          <span class="specs-label">Selecione o Tamanho</span>
+          <div class="specs-options" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+            <% @product.sizes.split(',').each_with_index do |size, idx| %>
+              <div class="option-selector">
+                <input type="radio" id="size_<%= size.strip %>" name="size" value="<%= size.strip %>" <%= 'checked' if idx == 0 %> required class="option-radio">
+                <label for="size_<%= size.strip %>" class="option-badge-label"><%= size.strip %></label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @product.colors.present? %>
+        <div class="specs-item">
+          <span class="specs-label">Selecione a Cor</span>
+          <div class="specs-options" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+            <% @product.colors.split(',').each_with_index do |color, idx| %>
+              <div class="option-selector">
+                <input type="radio" id="color_<%= color.strip %>" name="color" value="<%= color.strip %>" <%= 'checked' if idx == 0 %> required class="option-radio">
+                <label for="color_<%= color.strip %>" class="option-badge-label"><%= color.strip %></label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="specs-item" style="margin-top:40px;">
+        <% if @product.in_stock? %>
+          <div class="form-group" style="display:flex; gap:16px; align-items:center; margin-bottom:20px;">
+            <label for="quantity" class="form-label" style="margin-bottom:0; font-weight:bold;">Quantidade:</label>
+            <input type="number" id="quantity" name="quantity" value="1" min="1" max="<%= @product.stock %>" class="form-control" style="width:80px; text-align:center;">
+          </div>
+          
+          <div style="display: flex; gap: 12px; align-items: stretch;">
+            <%= button_tag type: 'submit', class: "btn btn-primary", style: "flex-grow: 1; padding:16px 24px; font-size:1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px;", data: { action: "click->cart-drawer#open" } do %>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              Adicionar à Sacola
+            <% end %>
+            
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; background: white; padding: 0 8px;">
+              <%= render "favorites/button", product: @product %>
+            </div>
+          </div>
+        <% else %>
+          <button class="btn btn-outline" style="width: 100%; padding:16px 24px; cursor:not-allowed;" disabled>Esgotado</button>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @product.in_stock? && authenticated? && current_user != @product.seller %>
+      <div style="margin-top: 15px; text-align: center;">
+        <details class="offer-details">
+          <summary class="btn btn-outline" style="width:100%; border-color:var(--accent); color:var(--accent); cursor:pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px; vertical-align:text-bottom;"><path d="m15 5-3-3-3 3"/><path d="M12 2v10"/><path d="M5.5 16h13"/><path d="m9 20 3-3 3 3"/></svg>
+            Fazer uma Oferta
+          </summary>
+          <div style="padding:15px; border:1px solid var(--border-color); border-radius:var(--radius-sm); margin-top:8px; background:#fdfcfb; text-align:left;">
+            <p style="font-size:0.9rem; margin-bottom:10px; color:var(--text-muted);">Mande sua proposta para o vendedor! Se ele aceitar, o preço cai na hora pra você fechar negócio.</p>
+            <%= form_with model: Offer.new, url: product_offers_path(@product), local: true do |f| %>
+              <div style="display:flex; gap:10px;">
+                <%= f.number_field :amount, step: "0.01", class: "form-control", placeholder: "R$ 0.00", required: true, style: "flex-grow:1;" %>
+                <%= f.submit "Enviar Proposta", class: "btn btn-primary btn-sm" %>
+              </div>
+            <% end %>
+          </div>
+        </details>
+      </div>
+      <style>
+        .offer-details summary::marker { display: none; content: ""; }
+        .offer-details summary::-webkit-details-marker { display: none; }
+      </style>
+    <% end %>
+
+    <!-- Simulador de Frete na Página do Produto -->
+    <div class="checkout-box" style="margin-top: 30px; padding: 20px; border-radius: var(--radius-sm); border: 1px dashed var(--border-color); background: #fdfcfb; text-align:left;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--primary); margin-bottom: 12px; border:none; padding:0;">Calcular Frete e Prazo</h3>
+      
+      <%= form_with url: calculate_shipping_product_path(@product), method: :post, style: "display: flex; flex-direction: column; gap: 15px;" do %>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label class="form-label" style="font-size: 0.85rem; margin: 0; font-weight: 600;">CEP</label>
+            <input type="text" name="cep" placeholder="Digite seu CEP (apenas números)" class="form-control" style="padding: 8px 12px;" required>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label class="form-label" style="font-size: 0.85rem; margin: 0; font-weight: 600;">Rua / Avenida</label>
+            <input type="text" name="street" placeholder="Ex: Rua das Flores" class="form-control" style="padding: 8px 12px;" required>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <label class="form-label" style="font-size: 0.85rem; margin: 0; font-weight: 600;">Número da Casa ou Apartamento</label>
+            <input type="text" name="number" placeholder="Ex: 123, Apto 42" class="form-control" style="padding: 8px 12px;" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-outline" style="padding: 10px 20px; font-size: 0.95rem; align-self: flex-start; margin-top: 5px;">
+          Calcular Frete e Prazo
+        </button>
+      <% end %>
+      
+      <!-- Container para renderizar os resultados via Turbo Stream -->
+      <div id="product-shipping-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Seção de Perguntas e Respostas (Q&A) -->
+<div style="margin-top: 60px; background: white; padding: 40px; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); text-align: left;">
+  <h2 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.6rem; margin-top: 0; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-question"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M10 8.5a1.5 1.5 0 0 1 3 0c0 .7-.7 1.3-1.2 1.8-.3.3-.5.7-.5 1.2"/><path d="M12 15h.01"/></svg>
+    Perguntas e Respostas
+  </h2>
+
+  <!-- Listagem de Perguntas existentes -->
+  <div style="display: flex; flex-direction: column; gap: 25px; margin-bottom: 40px;">
+    <% if @product.questions.any? %>
+      <% @product.questions.order(created_at: :asc).each do |q| %>
+        <div style="border-bottom: 1px dashed var(--border-color); padding-bottom: 20px; margin-bottom: 5px;">
+          
+          <!-- Bloco da Pergunta -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 10px;">
+            <div>
+              <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">
+                Pergunta de <%= q.user.name %>
+              </span>
+              <p style="font-size: 1rem; color: var(--text-dark); margin: 6px 0 0; font-weight: 500;">
+                <%= q.content %>
+              </p>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;"><%= q.created_at.strftime("%d/%m/%Y %H:%M") %></span>
+          </div>
+
+          <!-- Bloco da Resposta -->
+          <% if q.answer.present? %>
+            <div style="background-color: #fdfcfb; border-left: 3px solid var(--accent); padding: 15px 20px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-left: 20px; margin-top: 12px; display: flex; gap: 12px; align-items: flex-start;">
+              <div style="flex-shrink: 0; margin-top: 3px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              </div>
+              <div style="flex-grow: 1;">
+                <span style="font-size: 0.78rem; color: var(--accent); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">
+                  Resposta de <%= @product.seller&.name || "Vendedor" %>
+                </span>
+                <p style="font-size: 0.95rem; color: var(--text-dark); margin: 0; line-height: 1.5;">
+                  <%= q.answer %>
+                </p>
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace; display: block; margin-top: 6px;">
+                  Respondido em <%= q.answered_at.strftime("%d/%m/%Y %H:%M") %>
+                </span>
+              </div>
+            </div>
+          <% else %>
+            <!-- Se não foi respondida e o usuário logado for o dono do produto -->
+            <% if authenticated? && (current_user == @product.seller || current_user.admin?) %>
+              <div style="background-color: #fffaf5; border-left: 3px solid var(--primary); padding: 15px 20px; border-radius: var(--radius-sm); margin-left: 20px; margin-top: 12px;">
+                <span style="font-size: 0.8rem; color: var(--primary); font-weight: bold; display: block; margin-bottom: 8px;">Responder à pergunta:</span>
+                <%= form_with model: q, url: answer_question_path(q), method: :patch, local: true do |f| %>
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <%= f.text_field :answer, placeholder: "Digite sua resposta pública...", class: "form-control", required: true, style: "padding: 8px 12px; font-size: 0.9rem; margin-bottom:0;" %>
+                    <%= f.submit "Enviar Resposta", class: "btn btn-primary btn-sm", style: "white-space: nowrap; padding: 10px 15px;" %>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin-left: 20px; margin-top: 8px;">
+                Aguardando resposta do vendedor...
+              </p>
+            <% end %>
+          <% end %>
+
+        </div>
+      <% end %>
+    <% else %>
+      <p style="font-style: italic; color: var(--text-muted); text-align: center; padding: 30px 0; margin: 0;">
+        Nenhuma pergunta realizada para esta peça ainda. Faça a primeira pergunta abaixo!
+      </p>
+    <% end %>
+  </div>
+
+  <!-- Formulário para Fazer uma Pergunta -->
+  <% if authenticated? %>
+    <% unless current_user == @product.seller %>
+      <div style="background-color: #fcfcfc; border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius-sm);">
+        <h3 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.2rem; margin-top: 0; margin-bottom: 12px; border:none; padding:0;">Fazer uma Pergunta</h3>
+        <%= form_with model: [ @product, Question.new ], url: product_questions_path(@product), method: :post, local: true do |f| %>
+          <div class="form-group" style="margin-bottom: 15px;">
+            <%= f.text_area :content, placeholder: "Escreva sua dúvida aqui (ex: Qual a medida da manga?, O tecido estica?)...", rows: 3, class: "form-control", required: true, style: "resize: vertical;" %>
+          </div>
+          <%= f.submit "Enviar Pergunta", class: "btn btn-primary btn-sm", style: "padding: 10px 25px;" %>
+        <% end %>
+      </div>
+    <% else %>
+      <p style="font-style: italic; color: var(--text-muted); font-size: 0.9rem; text-align: center; border: 1px dashed var(--border-color); padding: 15px; border-radius: var(--radius-sm); background-color: #fdfcfb;">
+        Este produto é seu. Você pode responder às perguntas dos clientes diretamente na listagem acima!
+      </p>
+    <% end %>
+  <% else %>
+    <div style="text-align: center; border: 1px dashed var(--border-color); padding: 25px; border-radius: var(--radius-sm); background-color: #fdfcfb;">
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px; font-style: italic;">
+        Você precisa estar logado para fazer uma pergunta sobre esta peça.
+      </p>
+      <%= link_to "Entrar na minha Conta", new_session_path, class: "btn btn-outline btn-sm", style: "display: inline-block;" %>
+    </div>
+  <% end %>
+
+</div>

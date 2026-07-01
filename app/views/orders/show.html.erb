@@ -1,0 +1,214 @@
+<div class="checkout-box" style="max-width: 700px; margin: 40px auto; padding: 40px; text-align: center;">
+  
+  <!-- Success Header Icon -->
+  <div style="background-color:#eaf2eb; color:var(--success); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+  </div>
+
+  <h1 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 8px;">Pedido Recebido!</h1>
+  <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 30px;">
+    Obrigado pela sua compra, <strong><%= @order.customer_name %></strong>. Seu pedido foi processado com sucesso.
+  </p>
+
+  <div style="text-align: left; background-color: #f7ede2; padding: 24px; border-radius: var(--radius); margin-bottom: 30px; border: 1px solid #ead6c3;">
+    <h3 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 12px; border-bottom: 1px solid #ead6c3; padding-bottom: 8px;">
+      Resumo do Pedido #<%= @order.id %>
+    </h3>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem;">
+      <span>Status do Pedido:</span>
+      <strong style="text-transform:uppercase; color: <%= @order.status == 'paid' ? 'var(--success)' : 'var(--accent)' %>">
+        <%= @order.status == 'paid' ? 'Pago' : 'Pendente de Pagamento' %>
+      </strong>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem;">
+      <span>Método de Pagamento:</span>
+      <strong style="text-transform:capitalize;"><%= @order.payment_method.gsub('_', ' ') %></strong>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem;">
+      <span>Tipo de Envio:</span>
+      <strong><%= @order.shipping_method %></strong>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem;">
+      <span>Endereço de Entrega:</span>
+      <span style="max-width: 60%; text-align: right;"><%= @order.shipping_address %></span>
+    </div>
+    <% if @order.tracking_code.present? %>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 12px; padding: 10px 14px; background-color: #eaf2eb; border-radius: var(--radius-sm); border: 1px solid #cce3d1; font-size:0.95rem;">
+        <span style="color: var(--success); font-weight: 600;">Código de Rastreamento:</span>
+        <strong style="font-family: monospace; color: var(--success); font-size:1.05rem;"><%= @order.tracking_code %></strong>
+      </div>
+    <% end %>
+    <div style="display:flex; justify-content:space-between; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ead6c3; font-size:1.15rem;">
+      <strong>Valor Total pago/devido:</strong>
+      <strong style="color: var(--primary);">R$ <%= number_with_precision(@order.total, precision: 2) %></strong>
+    </div>
+  </div>
+
+  <% if @tracking_events.present? %>
+    <div class="checkout-box" style="text-align: left; padding: 30px; margin-bottom: 30px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); background: white; border-radius: var(--radius);">
+      <h3 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.3rem; display: flex; align-items: center; gap: 8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><polyline points="15 11 18 11 22 15 22 18 14 18"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        Rastreamento da Entrega
+      </h3>
+
+      <div style="position: relative; padding-left: 30px; margin-left: 10px;">
+        <!-- Vertical Line -->
+        <div style="position: absolute; left: 4px; top: 10px; bottom: 10px; width: 2px; background-color: var(--border-color);"></div>
+
+        <% @tracking_events.each_with_index do |event, idx| %>
+          <div style="position: relative; margin-bottom: 25px; min-height: 40px;">
+            <!-- Bullet node -->
+            <div style="position: absolute; left: -34px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 3px solid <%= idx == 0 ? 'var(--success)' : 'var(--border-color)' %>; background-color: <%= idx == 0 ? 'var(--success)' : 'white' %>; box-shadow: 0 0 0 4px white;"></div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 5px;">
+              <div>
+                <strong style="color: <%= idx == 0 ? 'var(--success)' : 'var(--text-dark)' %>; font-size: 0.95rem; display: block; font-weight: 600;">
+                  <%= event[:description] %>
+                </strong>
+                <span style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-top: 3px;">
+                  Local: <%= event[:location] %>
+                </span>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; white-space: nowrap;"><%= event[:date] %></span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Fluxo específico para PIX -->
+  <% if @order.payment_method == 'pix' && @order.status == 'pending' %>
+    <div class="checkout-box" style="border: 2px dashed var(--accent); background: white; margin-bottom: 30px;">
+      <h3 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 15px;">Aguardando Pagamento Pix</h3>
+      <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px;">
+        Pague com Pix para receber o produto rapidamente. Use o QR Code abaixo ou copie a chave do Pix.
+      </p>
+
+      <!-- Simulated QR Code -->
+      <div style="margin: 0 auto 20px; width: 200px; height: 200px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: white; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16V21H16"/><path d="M21 9V13h-4"/><path d="M9 21h4v-4"/><path d="M12 12h.01"/><path d="M16 16h.01"/><path d="M12 16h.01"/><path d="M9 9h.01"/></svg>
+        <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 8px;">QR Code do Pix do Bazar</span>
+      </div>
+
+      <!-- Pix Copia e Cola box -->
+      <div class="form-group">
+        <label class="form-label" style="text-align: left;">Pix Copia e Cola</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="pix_copia_cola" value="<%= @order.payment_pix_copia_cola %>" readonly class="form-control" style="font-family: monospace; font-size: 0.8rem; background-color:#fbf9f6;">
+          <button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('pix_copia_cola').value); this.textContent = 'Copiado!'; setTimeout(() => this.textContent = 'Copiar', 2000)" style="white-space: nowrap;">
+            Copiar
+          </button>
+        </div>
+      </div>
+      
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:15px; font-style:italic;">
+        * O envio será feito em até 24 horas úteis após a compensação automática do Pix.
+      </p>
+
+      <% if Rails.env.development? || Rails.env.test? %>
+        <div style="margin-top: 20px; border-top: 1px dashed var(--border-color); padding-top: 15px; text-align: center;">
+          <p style="font-size: 0.8rem; color: var(--danger); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">[Ambiente de Testes]</p>
+          <%= button_to "Simular Pagamento Pix (Asaas Webhook)", simulate_payment_order_path(@order), method: :patch, class: "btn btn-outline btn-sm", style: "color: var(--success); border-color: var(--success); background: #f6faf7; padding: 10px 20px; font-weight: 600; display: inline-block; width: 100%;" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @order.status == 'shipped' %>
+    <div class="checkout-box" style="border: 1px solid var(--border-color); background: #fdfcfb; padding: 25px; border-radius: var(--radius); margin-bottom: 25px; text-align: center;">
+      <h3 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 10px; border:none; padding:0;">Sua encomenda já chegou?</h3>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+        Se você já recebeu o produto em mãos e está tudo certo, confirme o recebimento abaixo para liberar o pagamento do vendedor.
+      </p>
+      <%= button_to "Confirmar Recebimento", confirm_delivery_order_path(@order), method: :patch, class: "btn btn-primary", style: "padding: 12px 24px; display:inline-block;" %>
+    </div>
+  <% elsif @order.status == 'completed' %>
+    <div class="checkout-box" style="border: 1px solid #cce3d1; background: #f6faf7; padding: 25px; border-radius: var(--radius); margin-bottom: 25px; text-align: center; color: var(--success);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px; color:var(--success);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <h4 style="font-weight: bold; margin-bottom: 5px; font-family: var(--font-serif); font-size:1.3rem;">Compra Finalizada!</h4>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        O recebimento foi confirmado e o pagamento foi transferido ao vendedor. Obrigado por comprar no Brechó Ruby!
+      </p>
+    </div>
+
+    <!-- Seção de Avaliação -->
+    <div class="checkout-box" style="border: 1px solid var(--border-color); background: white; padding: 30px; border-radius: var(--radius); margin-bottom: 25px; text-align: center;">
+      <% if @order.review.blank? %>
+        <h3 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 8px; border:none; padding:0; font-size:1.3rem;">Como foi sua experiência com <%= @order.seller&.name || "o vendedor" %>?</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px;">
+          Sua avaliação ajuda a manter a comunidade do Brechó Ruby segura e confiável!
+        </p>
+
+        <%= form_with model: [@order, Review.new], url: order_reviews_path(@order), method: :post, local: true do |f| %>
+          
+          <style>
+            .rating-stars {
+              display: flex;
+              flex-direction: row-reverse;
+              justify-content: center;
+              gap: 6px;
+              margin-bottom: 15px;
+            }
+            .rating-stars label {
+              font-size: 2.2rem;
+              color: #e2e8f0;
+              cursor: pointer;
+              transition: color 0.15s ease-in-out;
+            }
+            .rating-stars label:hover,
+            .rating-stars label:hover ~ label,
+            .rating-stars input:checked ~ label {
+              color: #ffc107;
+            }
+          </style>
+
+          <div class="rating-stars">
+            <input type="radio" id="star5" name="review[rating]" value="5" style="display:none;" required />
+            <label for="star5">★</label>
+            <input type="radio" id="star4" name="review[rating]" value="4" style="display:none;" />
+            <label for="star4">★</label>
+            <input type="radio" id="star3" name="review[rating]" value="3" style="display:none;" />
+            <label for="star3">★</label>
+            <input type="radio" id="star2" name="review[rating]" value="2" style="display:none;" />
+            <label for="star2">★</label>
+            <input type="radio" id="star1" name="review[rating]" value="1" style="display:none;" />
+            <label for="star1">★</label>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <%= f.text_area :comment, placeholder: "Escreva um comentário sobre o produto recebido e o atendimento do vendedor (opcional)...", rows: 3, class: "form-control", style: "resize: vertical;" %>
+          </div>
+
+          <%= f.submit "Enviar Avaliação", class: "btn btn-primary btn-sm", style: "padding: 10px 25px;" %>
+        <% end %>
+      <% else %>
+        <h3 style="font-family: var(--font-serif); color: var(--primary); margin-bottom: 15px; border:none; padding:0; font-size:1.3rem;">Sua Avaliação do Vendedor</h3>
+        
+        <div style="font-size: 1.8rem; color: #ffc107; margin-bottom: 10px;">
+          <% @order.review.rating.times do %>
+            ★
+          <% end %>
+          <% (5 - @order.review.rating).times do %>
+            <span style="color:#e2e8f0;">★</span>
+          <% end %>
+        </div>
+
+        <% if @order.review.comment.present? %>
+          <blockquote style="font-style: italic; color: var(--text-dark); background: #fdfcfb; border-left: 3px solid var(--primary); padding: 10px 20px; display: inline-block; margin: 10px 0; text-align: left; max-width: 500px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
+            "<%= @order.review.comment %>"
+          </blockquote>
+        <% end %>
+
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">
+          Avaliação enviada em <%= @order.review.created_at.strftime("%d/%m/%Y às %H:%M") %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div style="display:flex; justify-content:center; gap:16px;">
+    <%= link_to "Voltar para a Vitrine", root_path, class: "btn btn-outline" %>
+  </div>
+
+</div>

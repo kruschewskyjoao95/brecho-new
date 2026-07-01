@@ -1,0 +1,36 @@
+<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #fcf9f5; color: #2d241e; border: 1px solid #eaddd3; border-radius: 12px;">
+  
+  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #5c3d2e; padding-bottom: 15px;">
+    <h1 style="color: #5c3d2e; font-family: Georgia, serif; margin: 0; font-size: 24px;">Brechó Ruby</h1>
+    <p style="color: #c89666; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 5px 0 0;">Lookbook & Bazar</p>
+  </div>
+
+  <h2 style="color: #5c3d2e; font-family: Georgia, serif; font-size: 20px; margin-top: 0;">Seu pedido está a caminho! 🚚📦</h2>
+  
+  <p style="font-size: 15px; line-height: 1.6;">
+    Olá, <strong><%= @order.customer_name %></strong>, tudo bem?
+  </p>
+  <p style="font-size: 15px; line-height: 1.6;">
+    O vendedor já postou sua peça nos Correios! Agora você pode acompanhar o transporte do seu pedido até a sua casa.
+  </p>
+
+  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #eaddd3; margin: 25px 0; text-align: center;">
+    <span style="font-size: 13px; color: #837265; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px;">Código de Rastreamento (Correios):</span>
+    <code style="font-family: monospace; font-size: 20px; font-weight: bold; color: #5c3d2e; background-color: #f5ece5; padding: 6px 15px; border-radius: 4px; border: 1px solid #eaddd3; display: inline-block;"><%= @order.tracking_code %></code>
+    
+    <div style="margin-top: 15px;">
+      <a href="https://rastreamento.correios.com.br/app/index.php" target="_blank" style="background-color: #5c3d2e; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: bold; display: inline-block;">Rastrear no site dos Correios</a>
+    </div>
+  </div>
+
+  <div style="background-color: #eaf2eb; padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; color: #2e7d32; border-left: 4px solid #4caf50; margin-bottom: 25px;">
+    <strong>Sua encomenda já chegou?</strong><br>
+    Assim que o pacote chegar na sua casa e você verificar que está tudo certinho com a roupa, por favor, clique em <strong>"Confirmar Recebimento"</strong> na página de detalhes do seu pedido para liberar o dinheiro do vendedor!
+  </div>
+
+  <div style="text-align: center; margin-top: 30px; border-top: 1px solid #eaddd3; padding-top: 20px; font-size: 12px; color: #837265;">
+    <p>Este é um e-mail automático enviado pelo Brechó Ruby. Por favor, não responda diretamente.</p>
+    <p>© 2026 Brechó Ruby. Todos os direitos reservados.</p>
+  </div>
+
+</div>

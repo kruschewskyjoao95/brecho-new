@@ -1,0 +1,202 @@
+<div class="lookbook-title-sec" style="padding: 40px 0 10px;">
+  <h1>Finalizar Compra</h1>
+  <p>Insira seus dados para concluir o pedido</p>
+</div>
+
+<%= form_with model: @order, local: true, data: { controller: "checkout", action: "submit->checkout#processPayment" } do |f| %>
+  <!-- Inputs ocultos para salvar frete -->
+  <input type="hidden" name="shipping_cost" id="hidden_shipping_cost" value="0">
+  <input type="hidden" name="shipping_method" id="hidden_shipping_method" value="">
+
+  <div class="checkout-grid">
+    <!-- Left Column: Checkout Boxes -->
+    <div>
+      <!-- 1. Dados Pessoais -->
+      <div class="checkout-box">
+        <h2>1. Dados Pessoais</h2>
+        
+        <div class="form-group">
+          <%= f.label :customer_name, "Nome Completo", class: "form-label" %>
+          <%= f.text_field :customer_name, class: "form-control", placeholder: "Ex: Maria Silva", required: true %>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <%= f.label :customer_email, "E-mail", class: "form-label" %>
+            <%= f.email_field :customer_email, class: "form-control", placeholder: "Ex: maria@email.com", required: true %>
+          </div>
+          <div class="form-group">
+            <%= f.label :customer_phone, "WhatsApp/Telefone", class: "form-label" %>
+            <%= f.telephone_field :customer_phone, class: "form-control", placeholder: "Ex: (11) 99999-9999", required: true %>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Entrega -->
+      <div class="checkout-box">
+        <h2>2. Endereço de Entrega</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <%= f.label :shipping_cep, "CEP", class: "form-label" %>
+            <%= f.text_field :shipping_cep, class: "form-control", placeholder: "Ex: 01001-000", required: true, 
+                             data: { checkout_target: "cep", action: "keyup->checkout#calculateShipping change->checkout#calculateShipping" } %>
+          </div>
+          <div class="form-group" style="display: flex; align-items: flex-end;">
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+              * O frete é calculado automaticamente ao preencher o CEP.
+            </p>
+          </div>
+        </div>
+
+        <!-- Rua/Avenida & Número -->
+        <div class="form-row">
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="shipping_street">Rua / Avenida</label>
+            <input type="text" id="shipping_street" name="shipping_street" class="form-control" placeholder="Aguardando CEP..." required data-checkout-target="street">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="shipping_number">Número</label>
+            <input type="text" id="shipping_number" name="shipping_number" class="form-control" placeholder="123" required>
+          </div>
+        </div>
+
+        <!-- Complemento & Bairro -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="shipping_complement">Complemento (Opcional)</label>
+            <input type="text" id="shipping_complement" name="shipping_complement" class="form-control" placeholder="Ex: Apto 51, Bloco B">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="shipping_neighborhood">Bairro</label>
+            <input type="text" id="shipping_neighborhood" name="shipping_neighborhood" class="form-control" placeholder="Bairro" required data-checkout-target="neighborhood">
+          </div>
+        </div>
+
+        <!-- Cidade & Estado -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="shipping_city">Cidade</label>
+            <input type="text" id="shipping_city" name="shipping_city" class="form-control" placeholder="Cidade" required data-checkout-target="city">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="shipping_state">Estado (UF)</label>
+            <input type="text" id="shipping_state" name="shipping_state" class="form-control" placeholder="UF" required data-checkout-target="state">
+          </div>
+        </div>
+
+        <!-- Opções de Frete Carregadas via AJAX -->
+        <div class="form-group" style="margin-top: 25px;">
+          <label class="form-label">Opções de Envio</label>
+          <div data-checkout-target="shippingContainer" data-action="change->checkout#updateTotal">
+            <p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">
+              Digite um CEP válido para carregar as opções de frete.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Pagamento -->
+      <div class="checkout-box">
+        <h2>3. Forma de Pagamento</h2>
+        
+        <div class="payment-selector">
+          <div>
+            <%= f.radio_button :payment_method, "pix", checked: true, class: "payment-card-input", data: { action: "change->checkout#togglePaymentFields" } %>
+            <label for="order_payment_method_pix" class="payment-card-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success);"><path d="M2 12h20"/><path d="M20 12v8H4v-8"/><path d="m15 5-3-3-3 3"/><path d="M12 2v10"/></svg>
+              Pix (10% OFF)
+            </label>
+          </div>
+          <div>
+            <%= f.radio_button :payment_method, "credit_card", class: "payment-card-input", data: { action: "change->checkout#togglePaymentFields" } %>
+            <label for="order_payment_method_credit_card" class="payment-card-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><rect width="20" height="14" rx="2" y="5" x="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              Cartão de Crédito
+            </label>
+          </div>
+          <div>
+            <%= f.radio_button :payment_method, "debit_card", class: "payment-card-input", data: { action: "change->checkout#togglePaymentFields" } %>
+            <label for="order_payment_method_debit_card" class="payment-card-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Débito
+            </label>
+          </div>
+        </div>
+
+        <!-- Campos do Cartão de Crédito -->
+        <div data-checkout-target="creditCardFields" style="display: none; border-top: 1px solid var(--border-color); padding-top: 20px;">
+          <input type="hidden" name="payment_token" value="simulated_frontend_token_xyz" data-checkout-target="paymentToken">
+          <div class="form-group">
+            <label class="form-label" for="card_number">Número do Cartão (Tokenizado no Browser)</label>
+            <input type="text" id="card_number" data-checkout-target="cardNumber" class="form-control" placeholder="0000 0000 0000 0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="card_name">Nome Impresso no Cartão</label>
+            <input type="text" id="card_name" data-checkout-target="cardName" class="form-control" placeholder="Ex: MARIA SILVA">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="card_expiry">Validade</label>
+              <input type="text" id="card_expiry" data-checkout-target="cardExpiry" class="form-control" placeholder="MM/AA">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="card_cvv">CVV</label>
+              <input type="text" id="card_cvv" data-checkout-target="cardCvv" class="form-control" placeholder="123">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="installments">Parcelamento</label>
+            <select id="installments" name="installments" class="form-control">
+              <% (1..12).each do |i| %>
+                <option value="<%= i %>"><%= i %>x de R$ <%= number_with_precision(@cart.total / i, precision: 2) %> sem juros</option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Order Summary -->
+    <div>
+      <div class="order-summary-box">
+        <h3>Resumo do Pedido</h3>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: -8px; margin-bottom: 16px;">
+          Vendedor: <strong style="color: var(--primary);"><%= @cart.cart_items.first&.product&.seller ? @cart.cart_items.first.product.seller.name : "Brechó Ruby" %></strong>
+        </div>
+        
+        <div style="margin-bottom: 20px; max-height: 200px; overflow-y: auto; padding-right: 5px;">
+          <% @cart.cart_items.includes(:product).each do |item| %>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.9rem;">
+              <span style="color: var(--text-dark); max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <%= item.product.name %> (x<%= item.quantity %>)
+              </span>
+              <span style="font-weight: 500;">
+                R$ <%= number_with_precision(item.total, precision: 2) %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>R$ <%= number_with_precision(@cart.total, precision: 2) %></span>
+        </div>
+
+        <div class="summary-row">
+          <span>Frete:</span>
+          <span data-checkout-target="shippingDisplay">R$ 0.00</span>
+        </div>
+
+        <div class="summary-row total">
+          <span>Total:</span>
+          <span data-checkout-target="totalDisplay" data-subtotal="<%= @cart.total %>">R$ <%= number_with_precision(@cart.total, precision: 2) %></span>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <%= f.submit "Confirmar e Pagar", class: "btn btn-primary", style: "width:100%; padding:15px; font-size:1.1rem;" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

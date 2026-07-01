@@ -1,0 +1,143 @@
+<div class="lookbook-title-sec">
+  <h1>Brechó Ruby</h1>
+  <p>Lookbook Exclusivo de Moda Feminina & Peças Curadas</p>
+</div>
+
+<!-- Search & Filter Form -->
+<%= form_with url: products_path, method: :get, data: { turbo_frame: "products_frame", turbo_action: "advance" }, class: "search-filter-form", style: "margin-bottom: 25px;" do |f| %>
+  
+  <!-- Search Input -->
+  <div style="position: relative; margin: 0 auto 20px; max-width: 600px; display: flex; gap: 10px;">
+    <input type="text" name="query" value="<%= params[:query] %>" placeholder="Busque por blusa, vestido, calça, marca..." class="form-control" style="padding-left: 45px; border-radius: 30px; font-size: 1.05rem;" oninput="this.form.requestSubmit()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 18px; top: 15px; color: var(--text-muted);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  </div>
+
+  <!-- Collapsible Filter Panel Toggle -->
+  <div style="text-align: center; margin-bottom: 20px;">
+    <button type="button" class="btn btn-outline btn-sm" onclick="const panel = document.getElementById('filter-panel'); panel.style.display = panel.style.display === 'none' ? 'grid' : 'none';" style="display: inline-flex; align-items: center; gap: 8px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>
+      Filtros Avançados
+    </button>
+  </div>
+
+  <!-- Advanced Filters Grid -->
+  <div id="filter-panel" style="display: none; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; background: white; padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); margin-bottom: 25px; text-align: left;">
+    
+    <!-- Filter by Size -->
+    <div class="form-group" style="margin: 0;">
+      <label class="form-label" style="font-size: 0.75rem;">Tamanho</label>
+      <select name="size" class="form-control" onchange="this.form.requestSubmit()" style="padding: 8px 12px; font-size: 0.85rem; background-color: #fdfcfb;">
+        <option value="">Qualquer</option>
+        <% %w[PP P M G GG 36 38 40 42 44].each do |s| %>
+          <option value="<%= s %>" <%= 'selected' if params[:size] == s %>><%= s %></option>
+        <% end %>
+      </select>
+    </div>
+
+    <!-- Filter by Condition -->
+    <div class="form-group" style="margin: 0;">
+      <label class="form-label" style="font-size: 0.75rem;">Estado de Conservação</label>
+      <select name="condition" class="form-control" onchange="this.form.requestSubmit()" style="padding: 8px 12px; font-size: 0.85rem; background-color: #fdfcfb;">
+        <option value="">Qualquer</option>
+        <option value="new_with_tags" <%= 'selected' if params[:condition] == 'new_with_tags' %>>Novo com etiqueta</option>
+        <option value="gently_used" <%= 'selected' if params[:condition] == 'gently_used' %>>Gentilmente usado</option>
+        <option value="vintage" <%= 'selected' if params[:condition] == 'vintage' %>>Vintage</option>
+      </select>
+    </div>
+
+    <!-- Filter by Brand -->
+    <div class="form-group" style="margin: 0;">
+      <label class="form-label" style="font-size: 0.75rem;">Marca</label>
+      <input type="text" name="brand" value="<%= params[:brand] %>" placeholder="Ex: Farm, Zara..." class="form-control" style="padding: 8px 12px; font-size: 0.85rem; background-color: #fdfcfb;" oninput="this.form.requestSubmit()">
+    </div>
+
+  </div>
+
+<% end %>
+
+<!-- Category Filters (Targets turbo-frame) -->
+<div class="category-filter-bar">
+  <%= link_to "Todos", root_path(query: params[:query], size: params[:size], condition: params[:condition], brand: params[:brand]), class: "filter-btn #{'active' unless params[:category].present?}", data: { turbo_frame: "products_frame" } %>
+  <% @categories.each do |cat| %>
+    <%= link_to cat, root_path(category: cat, query: params[:query], size: params[:size], condition: params[:condition], brand: params[:brand]), class: "filter-btn #{'active' if params[:category] == cat}", data: { turbo_frame: "products_frame" } %>
+  <% end %>
+</div>
+
+<!-- Turbo Frame for Products Grid -->
+<turbo-frame id="products_frame">
+  <div class="products-grid">
+    <% if @products.any? %>
+      <% @products.each do |product| %>
+        <div class="product-card" style="position: relative;">
+          <%= render "favorites/button", product: product %>
+          <%= link_to product_path(product), data: { turbo_frame: "_top" } do %>
+            <div class="product-image-wrapper">
+              <% if product.price_promo_cents.present? %>
+                <span class="badge-promo">PROMO</span>
+              <% end %>
+              <span class="badge-tag"><%= product.category %></span>
+              
+              <% if product.images.attached? %>
+                <%= image_tag product.images.first %>
+              <% else %>
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #eae5e1; color: var(--text-muted);">
+                  Sem Imagem
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+          
+          <div class="product-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <div class="product-cat" style="margin: 0;"><%= product.category %></div>
+              <% if product.brand.present? %>
+                <span style="font-size: 0.75rem; color: var(--accent); font-weight: 600; text-transform: uppercase;"><%= product.brand %></span>
+              <% end %>
+            </div>
+            
+            <%= link_to product_path(product), data: { turbo_frame: "_top" } do %>
+              <h3 class="product-title"><%= product.name %></h3>
+            <% end %>
+
+            <% if product.condition.present? %>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+                Condição: <strong style="color: var(--text-dark);"><%= product.condition_text %></strong>
+              </div>
+            <% end %>
+            
+            <div class="product-price-box">
+              <% if product.price_promo_cents.present? %>
+                <span class="price-original has-discount">R$ <%= number_with_precision(product.price, precision: 2) %></span>
+                <span class="price-promo-val">R$ <%= number_with_precision(product.price_promo, precision: 2) %></span>
+              <% else %>
+                <span class="price-original">R$ <%= number_with_precision(product.price, precision: 2) %></span>
+              <% end %>
+            </div>
+            
+            <div class="price-installments-val">
+              ou 12x de R$ <%= number_with_precision(product.price_installments, precision: 2) %> sem juros
+            </div>
+            
+            <div class="product-actions-btn">
+              <% if product.in_stock? %>
+                <%= form_with url: cart_items_path(product_id: product.id, quantity: 1), method: :post, data: { turbo_frame: "cart_drawer_content" } do %>
+                  <%= button_tag type: 'submit', class: "btn btn-primary btn-sm", style: "width: 100%;", data: { action: "click->cart-drawer#open" } do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    Adicionar à Sacola
+                  <% end %>
+                <% end %>
+              <% else %>
+                <button class="btn btn-outline btn-sm" style="width: 100%; cursor: not-allowed;" disabled>Esgotado</button>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: white; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); color: var(--text-muted); font-style: italic;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px; color: var(--text-muted);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        Nenhum produto encontrado para os filtros selecionados.
+      </div>
+    <% end %>
+  </div>
+</turbo-frame>

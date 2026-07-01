@@ -1,0 +1,99 @@
+<div class="lookbook-title-sec" style="padding: 40px 0 10px; text-align: left;">
+  <%= link_to "← Voltar para Vendas", admin_sales_path, style: "font-size: 0.9rem; color: var(--text-muted); display: inline-block; margin-bottom: 15px;" %>
+  <h1>Pedido #<%= @sale.id %></h1>
+  <p>Detalhes da venda e código de rastreamento</p>
+</div>
+
+<div class="checkout-grid" style="margin-top: 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+  <!-- Left Column: Details -->
+  <div>
+    <!-- 1. Dados do Cliente -->
+    <div class="checkout-box" style="margin-bottom: 25px; background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+      <h3 style="margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--primary);">1. Dados do Cliente</h3>
+      <p style="margin-bottom: 8px;"><strong>Nome:</strong> <%= @sale.customer_name %></p>
+      <p style="margin-bottom: 8px;"><strong>Email:</strong> <%= @sale.customer_email %></p>
+      <p style="margin-bottom: 8px;"><strong>WhatsApp/Telefone:</strong> <%= @sale.customer_phone %></p>
+    </div>
+
+    <!-- 2. Endereço de Entrega -->
+    <div class="checkout-box" style="margin-bottom: 25px; background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+      <h3 style="margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--primary);">2. Endereço de Entrega</h3>
+      <p style="margin-bottom: 8px;"><strong>CEP:</strong> <%= @sale.shipping_cep %></p>
+      <p style="margin-bottom: 8px;"><strong>Endereço completo:</strong> <%= @sale.shipping_address %></p>
+      <p style="margin-bottom: 8px;"><strong>Método de Envio Escolhido:</strong> <%= @sale.shipping_method %> (R$ <%= number_with_precision(@sale.shipping_cost, precision: 2) %>)</p>
+    </div>
+
+    <!-- 3. Rastreamento e Status do Envio -->
+    <div class="checkout-box" style="margin-bottom: 25px; background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+      <h3 style="margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--primary);">3. Logística e Rastreio</h3>
+      
+      <%= form_with model: @sale, url: admin_sale_path(@sale), method: :patch, local: true do |f| %>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <%= f.label :tracking_code, "Código de Rastreamento (Correios / Transportadora)", class: "form-label" %>
+          <%= f.text_field :tracking_code, class: "form-control", placeholder: "Ex: BR123456789BR", style: "font-family: monospace;" %>
+        </div>
+
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div class="form-group">
+            <%= f.label :shipping_status, "Status do Envio", class: "form-label" %>
+            <%= f.select :shipping_status, [['Aguardando Envio', 'pending_shipment'], ['Enviado', 'shipped'], ['Entregue ao Cliente', 'delivered']], {}, class: "form-control" %>
+          </div>
+          
+          <div class="form-group">
+            <%= f.label :status, "Status do Pedido", class: "form-label" %>
+            <%= f.select :status, [['Aguardando Pagamento', 'pending'], ['Pago', 'paid'], ['Enviado', 'shipped'], ['Finalizado', 'completed'], ['Cancelado/Reembolsado', 'cancelled']], {}, class: "form-control" %>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <%= f.submit "Salvar Alterações", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Right Column: Resumo dos Itens -->
+  <div>
+    <div class="order-summary-box" style="background: white; padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); position: sticky; top: 20px;">
+      <h3 style="color: var(--primary); margin-bottom: 15px;">Itens do Pedido</h3>
+      
+      <div style="margin-bottom: 20px;">
+        <% @sale.order_items.includes(:product).each do |item| %>
+          <div style="display: flex; gap: 12px; margin-bottom: 16px; align-items: center;">
+            <% if item.product.images.attached? %>
+              <%= image_tag item.product.images.first, style: "width: 50px; height: 65px; object-fit: cover; border-radius: 4px;" %>
+            <% else %>
+              <div style="width: 50px; height: 65px; border-radius: 4px; background-color: #eae5e1; display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--text-muted);">Sem foto</div>
+            <% end %>
+            <div style="flex-grow: 1;">
+              <span style="font-weight: 500; font-size: 0.9rem; display: block;"><%= item.product.name %></span>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">
+                Qtd: <%= item.quantity %>
+                <% if item.size.present? %> | Tam: <%= item.size %><% end %>
+                <% if item.color.present? %> | Cor: <%= item.color %><% end %>
+              </span>
+            </div>
+            <div style="font-weight: 600; font-size: 0.9rem;">
+              R$ <%= number_with_precision(item.price_cents / 100.0 * item.quantity, precision: 2) %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
+        <span>Subtotal dos Itens:</span>
+        <span>R$ <%= number_with_precision(@sale.subtotal, precision: 2) %></span>
+      </div>
+
+      <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem;">
+        <span>Valor do Frete:</span>
+        <span>R$ <%= number_with_precision(@sale.shipping_cost, precision: 2) %></span>
+      </div>
+
+      <div class="summary-row total" style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: bold; border-top: 1px dashed var(--border-color); padding-top: 12px; color: var(--primary);">
+        <span>Total Recebido:</span>
+        <span>R$ <%= number_with_precision(@sale.total, precision: 2) %></span>
+      </div>
+    </div>
+  </div>
+</div>

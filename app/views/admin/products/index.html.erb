@@ -1,0 +1,80 @@
+<div class="lookbook-title-sec" style="padding: 40px 0 20px; display:flex; justify-content:space-between; align-items:center; text-align:left;">
+  <div>
+    <h1>Painel de Controle</h1>
+    <p>Gerencie o estoque de roupas e lookbook do brechó</p>
+  </div>
+  <div>
+    <%= link_to "Adicionar Nova Peça", new_admin_product_path, class: "btn btn-primary" %>
+  </div>
+</div>
+
+<div style="display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+  <%= link_to "Minhas Peças", admin_products_path, style: "font-weight: bold; border-bottom: 2px solid var(--primary); padding-bottom: 8px; color: var(--primary);" %>
+  <%= link_to "Minhas Vendas", admin_sales_path, style: "padding-bottom: 8px; color: var(--text-muted);" %>
+  <%= link_to "Financeiro", admin_financial_path, style: "padding-bottom: 8px; color: var(--text-muted);" %>
+</div>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Foto</th>
+      <th>Nome / Categoria</th>
+      <th>Preço à Vista</th>
+      <th>Preço Regular</th>
+      <th>Estoque</th>
+      <th>Status</th>
+      <th style="text-align:right;">Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if @products.any? %>
+      <% @products.each do |product| %>
+        <tr>
+          <td>
+            <% if product.images.attached? %>
+              <%= image_tag product.images.first, style: "width: 50px; height: 65px; object-fit: cover; border-radius: 4px;" %>
+            <% else %>
+              <div style="width: 50px; height: 65px; border-radius: 4px; background-color: #eae5e1; display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--text-muted);">Sem foto</div>
+            <% end %>
+          </td>
+          <td>
+            <strong><%= product.name %></strong> <br>
+            <span style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;"><%= product.category %></span>
+          </td>
+          <td>
+            <% if product.price_promo_cents.present? %>
+              <span style="color:var(--danger); font-weight:600;">R$ <%= number_with_precision(product.price_promo, precision: 2) %></span>
+            <% else %>
+              <span style="color:var(--text-muted);">--</span>
+            <% end %>
+          </td>
+          <td>
+            R$ <%= number_with_precision(product.price, precision: 2) %>
+          </td>
+          <td>
+            <span style="font-weight: 500; color: <%= product.stock > 0 ? 'inherit' : 'var(--danger)' %>">
+              <%= product.stock %> un.
+            </span>
+          </td>
+          <td>
+            <span class="badge-tag" style="position:static; background-color: <%= product.active? ? 'var(--success)' : 'var(--text-muted)' %>">
+              <%= product.active? ? 'Ativo' : 'Inativo' %>
+            </span>
+          </td>
+          <td style="text-align:right;">
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+              <%= link_to "Editar", edit_admin_product_path(product), class: "btn btn-outline btn-sm" %>
+              <%= button_to "Excluir", admin_product_path(product), method: :delete, data: { confirm: "Tem certeza que deseja excluir esta peça?" }, class: "btn btn-outline btn-sm", style: "color:var(--danger); border-color:#f6d4d4;" %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr>
+        <td colspan="7" style="text-align:center; padding: 40px; color:var(--text-muted); font-style:italic;">
+          Nenhuma peça cadastrada no momento. Clique em "Adicionar Nova Peça" para começar!
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

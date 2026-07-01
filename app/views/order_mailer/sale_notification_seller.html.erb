@@ -1,0 +1,76 @@
+<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #fcf9f5; color: #2d241e; border: 1px solid #eaddd3; border-radius: 12px;">
+  
+  <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #5c3d2e; padding-bottom: 15px;">
+    <h1 style="color: #5c3d2e; font-family: Georgia, serif; margin: 0; font-size: 24px;">Brechó Ruby</h1>
+    <p style="color: #c89666; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 5px 0 0;">Painel do Vendedor</p>
+  </div>
+
+  <h2 style="color: #5c3d2e; font-family: Georgia, serif; font-size: 20px; margin-top: 0;">Parabéns! Você realizou uma venda! 💸🎉</h2>
+  
+  <p style="font-size: 15px; line-height: 1.6;">
+    Olá, <strong><%= @seller ? @seller.name : "Vendedor" %></strong>, tudo bem?
+  </p>
+  <p style="font-size: 15px; line-height: 1.6;">
+    Boas notícias! Um comprador comprou um ou mais itens da sua lojinha. O pagamento já foi confirmado pela plataforma e o valor correspondente está no seu **Saldo Bloqueado** no painel.
+  </p>
+
+  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #eaddd3; margin: 25px 0;">
+    <h3 style="color: #5c3d2e; font-family: Georgia, serif; font-size: 16px; margin-top: 0; border-bottom: 1px dashed #eaddd3; padding-bottom: 8px;">Itens Vendidos</h3>
+    
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <tbody>
+        <% @order.order_items.includes(:product).each do |item| %>
+          <tr>
+            <td style="padding: 8px 0; color: #2d241e;">
+              <%= item.product.name %> (x<%= item.quantity %>)
+              <% if item.size.present? || item.color.present? %>
+                <br><span style="font-size: 12px; color: #837265;"><%= [item.size, item.color].compact.join(" / ") %></span>
+              <% end %>
+            </td>
+            <td style="padding: 8px 0; text-align: right; font-weight: bold; color: #5c3d2e;">
+              R$ <%= number_with_precision(item.price_cents / 100.0 * item.quantity, precision: 2) %>
+            </td>
+          </tr>
+        <% end %>
+        
+        <tr style="border-top: 1px dashed #eaddd3; font-weight: bold;">
+          <td style="padding: 12px 0 0; color: #837265;">Seus Ganhos Líquidos (descontada taxa 10%):</td>
+          <td style="padding: 12px 0 0; text-align: right; color: #2e7d32; font-size: 15px;">
+            R$ <%= number_with_precision((@order.total - @order.shipping_cost) * 0.90, precision: 2) %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="color: #5c3d2e; font-family: Georgia, serif; font-size: 16px; margin-bottom: 10px;">O que fazer agora? Passo a Passo:</h3>
+  <ol style="font-size: 14px; line-height: 1.6; padding-left: 20px; color: #2d241e;">
+    <li style="margin-bottom: 10px;">
+      <strong>Embale o produto:</strong> Embale a peça com carinho e proteção para que ela chegue perfeita ao comprador.
+    </li>
+    <li style="margin-bottom: 10px;">
+      <strong>Poste nos Correios:</strong> Vá até a agência mais próxima com o endereço do cliente abaixo e faça a postagem (utilize a etiqueta pré-paga se gerada pelo Melhor Envio).
+    </li>
+    <li style="margin-bottom: 10px;">
+      <strong>Insira o Rastreamento:</strong> Acesse seu painel em <strong>Minhas Vendas</strong> no Brechó Ruby, abra os detalhes desta venda e digite o **Código de Rastreamento** dos Correios para liberar o envio. Isso é crucial para que o comprador saiba que o produto está a caminho.
+    </li>
+  </ol>
+
+  <div style="background-color: #f7ede2; padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.5; color: #837265; border-left: 4px solid #c89666; margin: 25px 0;">
+    <strong>Enviar para o endereço do comprador:</strong><br>
+    <strong>Nome:</strong> <%= @order.customer_name %> <br>
+    <strong>Endereço:</strong> <%= @order.shipping_address %> <br>
+    <strong>CEP:</strong> <%= @order.shipping_cep %> <br>
+    <strong>Telefone:</strong> <%= @order.customer_phone %>
+  </div>
+
+  <p style="font-size: 14px; line-height: 1.6; color: #837265; font-style: italic;">
+    * O dinheiro do seu ganho líquido ficará disponível para saque na sua conta assim que o comprador receber o pacote e confirmar no site, ou em até 7 dias após a entrega!
+  </p>
+
+  <div style="text-align: center; margin-top: 30px; border-top: 1px solid #eaddd3; padding-top: 20px; font-size: 12px; color: #837265;">
+    <p>Este é um e-mail automático enviado pelo Brechó Ruby. Por favor, não responda diretamente.</p>
+    <p>© 2026 Brechó Ruby. Todos os direitos reservados.</p>
+  </div>
+
+</div>

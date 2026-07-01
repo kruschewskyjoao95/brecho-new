@@ -1,0 +1,41 @@
+<%= turbo_stream.replace "cart_drawer_content" do %>
+  <%= turbo_frame_tag "cart_drawer_content" do %>
+    <div class="cart-drawer-items">
+      <% if @cart.cart_items.empty? %>
+        <p style="text-align: center; color: var(--text-muted); margin-top: 40px;">Sua sacola está vazia.</p>
+      <% else %>
+        <% @cart.cart_items.includes(:product).each do |item| %>
+          <div class="cart-drawer-item">
+            <% if item.product.images.attached? %>
+              <%= image_tag item.product.images.first, class: "cart-item-img" %>
+            <% else %>
+              <div class="cart-item-img" style="background-color: #eae5e1; display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--text-muted);">Sem foto</div>
+            <% end %>
+            <div class="cart-item-details">
+              <h4 class="cart-item-title"><%= item.product.name %></h4>
+              <div class="cart-item-meta">Tam: <%= item.size %> | Cor: <%= item.color %> | Qtd: <%= item.quantity %></div>
+              <div class="cart-item-price-row">
+                <span class="cart-item-price">R$ <%= number_with_precision(item.total, precision: 2) %></span>
+                <%= button_to cart_item_path(item), method: :delete, class: "cart-drawer-close", style: "font-size:1.2rem;", data: { turbo_frame: "cart_drawer_content" } do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="cart-drawer-footer">
+      <div class="cart-total-row">
+        <span>Subtotal:</span>
+        <span>R$ <%= number_with_precision(@cart.total, precision: 2) %></span>
+      </div>
+      <% unless @cart.cart_items.empty? %>
+        <%= link_to "Finalizar Compra", new_order_path, class: "btn btn-primary", style: "width: 100%; display: block; text-align: center; box-sizing: border-box;", data: { turbo: false } %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.update "cart-counter", @cart.total_items_count %>
