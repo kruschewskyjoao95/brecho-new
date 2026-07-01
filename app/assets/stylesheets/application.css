@@ -1001,3 +1001,82 @@ header.main-header {
   align-items: center;
   justify-content: center;
 }
+
+/* Pagy Pagination Styles */
+.pagination {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.pagination a, .pagination span.page, .pagination span.gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.pagination a:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--bg-color);
+}
+
+.pagination span.current {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.pagination span.disabled, .pagination span.disabled a {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+  background-color: var(--bg-color);
+}
+
+/* Empty State Styles */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border-color);
+  margin: 20px 0;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-bottom: 15px;
+}
+
+.empty-state h2 {
+  font-family: var(--font-serif);
+  color: var(--primary);
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 400px;
+  margin: 0 auto 20px;
+}

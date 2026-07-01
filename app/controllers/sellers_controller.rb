@@ -10,6 +10,7 @@ class SellersController < ApplicationController
       return
     end
 
-    @products = @seller.products.where(active: true).order(created_at: :desc)
+    query = @seller.products.where(active: true).includes(images_attachments: :blob, favorites: :user).order(created_at: :desc)
+    @pagy, @products = pagy(query, limit: 12)
   end
 end

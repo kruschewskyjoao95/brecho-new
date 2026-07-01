@@ -4,12 +4,19 @@ class Cart < ApplicationRecord
 
   validates :session_token, presence: true, uniqueness: true
 
-  def total_cents
-    cart_items.includes(:product).sum { |item| item.quantity * (item.product.price_promo_cents || item.product.price_cents) }
+  def total_cents(user = nil)
+    cart_items.includes(:product).sum do |item|
+      price = item.product.price_promo_cents || item.product.price_cents
+      if user.present?
+        offer = Offer.find_by(buyer: user, product: item.product, status: "accepted")
+        price = offer.amount_cents if offer
+      end
+      item.quantity * price
+    end
   end
 
-  def total
-    total_cents / 100.0
+  def total(user = nil)
+    total_cents(user) / 100.0
   end
 
   def total_items_count

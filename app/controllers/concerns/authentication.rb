@@ -39,9 +39,16 @@ module Authentication
     end
 
     def start_new_session_for(user)
+      # Previne Session Fixation destruindo sessões antigas ao fazer novo login
+      user.sessions.destroy_all
       user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |session|
         Current.session = session
-        cookies.signed.permanent[:session_id] = { value: session.id, httponly: true, same_site: :lax }
+        cookies.signed.permanent[:session_id] = { 
+          value: session.id, 
+          httponly: true, 
+          same_site: :lax,
+          secure: Rails.env.production?
+        }
       end
     end
 

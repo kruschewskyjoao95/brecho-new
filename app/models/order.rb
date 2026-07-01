@@ -7,7 +7,7 @@ class Order < ApplicationRecord
 
   validates :status, presence: true, inclusion: { in: %w[pending paid shipped completed cancelled] }
   validates :shipping_status, presence: true, inclusion: { in: %w[pending_shipment shipped delivered] }
-  validates :shipping_cep, presence: true
+  validates :shipping_cep, presence: true, format: { with: /\A\d{5}-?\d{3}\z/, message: "formato inválido (ex: 12345-678)" }
   validates :shipping_address, presence: true
   validates :payment_method, presence: true, inclusion: { in: %w[pix credit_card debit_card] }
   validates :total_cents, presence: true, numericality: { greater_than_or_equal_to: 0 }

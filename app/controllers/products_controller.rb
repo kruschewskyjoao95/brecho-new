@@ -7,7 +7,8 @@ class ProductsController < ApplicationController
     @products = Product.where(active: true)
 
     if params[:query].present?
-      q = "%#{params[:query]}%"
+      escaped_query = ActiveRecord::Base.sanitize_sql_like(params[:query])
+      q = "%#{escaped_query}%"
       @products = @products.where("products.name LIKE ? OR products.description LIKE ? OR products.brand LIKE ?", q, q, q)
     end
 
@@ -16,15 +17,15 @@ class ProductsController < ApplicationController
     end
 
     if params[:size].present?
-      @products = @products.where("products.sizes LIKE ?", "%#{params[:size]}%")
+      @products = @products.where("products.sizes LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(params[:size])}%")
     end
 
     if params[:color].present?
-      @products = @products.where("products.colors LIKE ?", "%#{params[:color]}%")
+      @products = @products.where("products.colors LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(params[:color])}%")
     end
 
     if params[:brand].present?
-      @products = @products.where("products.brand LIKE ?", "%#{params[:brand]}%")
+      @products = @products.where("products.brand LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(params[:brand])}%")
     end
 
     if params[:condition].present?
@@ -32,7 +33,8 @@ class ProductsController < ApplicationController
     end
 
     # Ordenação padrão do catálogo por criação recente com paginação Pagy
-    @pagy, @products = pagy(@products.order(created_at: :desc), limit: 12)
+    @products = @products.includes(images_attachments: :blob, favorites: :user).order(created_at: :desc)
+    @pagy, @products = pagy(@products, limit: 12)
   end
 
   def show

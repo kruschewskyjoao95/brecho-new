@@ -11,9 +11,6 @@
         <%= render "favorites/button", product: product %>
         <%= link_to product_path(product) do %>
           <div class="product-image-wrapper">
-            <% if product.price_promo_cents.present? %>
-              <span class="badge-promo">PROMO</span>
-            <% end %>
             <span class="badge-tag"><%= product.category %></span>
             
             <% if product.images.attached? %>

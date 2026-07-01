@@ -14,9 +14,7 @@ class Admin::OffersController < Admin::BaseController
     case action
     when "accept"
       if @offer.update(status: "accepted")
-        # Update the product price to the accepted offer amount
-        @offer.product.update(price_promo_cents: @offer.amount_cents)
-        redirect_to admin_offers_path, notice: "Oferta aceita! O preço do produto foi atualizado para R$ #{ActionController::Base.helpers.number_with_precision(@offer.amount, precision: 2)}."
+        redirect_to admin_offers_path, notice: "Oferta aceita! O comprador já pode finalizar a compra com o valor combinado."
       else
         redirect_to admin_offers_path, alert: "Erro ao aceitar oferta."
       end

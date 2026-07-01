@@ -2,11 +2,12 @@ class Admin::SalesController < Admin::BaseController
   before_action :set_sale, only: [ :show, :update ]
 
   def index
-    if current_user.admin?
-      @sales = Order.all.order(created_at: :desc)
-    else
-      @sales = current_user.sales.order(created_at: :desc)
-    end
+    query = if current_user.admin?
+              Order.all.includes(:user, :seller, order_items: :product)
+            else
+              current_user.sales.includes(:user, :seller, order_items: :product)
+            end
+    @pagy, @sales = pagy(query.order(created_at: :desc), limit: 20)
   end
 
   def show
@@ -35,6 +36,6 @@ class Admin::SalesController < Admin::BaseController
   end
 
   def sale_params
-    params.require(:order).permit(:tracking_code, :status, :shipping_status)
+    params.require(:order).permit(:tracking_code)
   end
 end

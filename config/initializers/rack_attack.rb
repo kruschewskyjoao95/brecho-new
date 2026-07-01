@@ -19,4 +19,11 @@ class Rack::Attack
       req.params['email_address'].to_s.downcase.gsub(/\s+/, "") if req.params['email_address'].present?
     end
   end
+
+  # Limita criação de favoritos, ofertas, avaliações, perguntas e carrinho (Spam Protection)
+  throttle('writes/ip', limit: 20, period: 1.minute) do |req|
+    if req.post? && req.path.match?(/\/(favorites|offers|reviews|questions|cart_items)/)
+      req.ip
+    end
+  end
 end

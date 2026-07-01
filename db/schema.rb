@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_235826) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_01_092836) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -47,6 +47,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_235826) do
     t.integer "quantity", default: 1, null: false
     t.string "size"
     t.datetime "updated_at", null: false
+    t.index ["cart_id", "product_id"], name: "index_cart_items_on_cart_id_and_product_id"
     t.index ["cart_id"], name: "index_cart_items_on_cart_id"
     t.index ["product_id"], name: "index_cart_items_on_product_id"
   end
@@ -113,6 +114,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_235826) do
     t.datetime "updated_at", null: false
     t.integer "user_id"
     t.index ["seller_id"], name: "index_orders_on_seller_id"
+    t.index ["status"], name: "index_orders_on_status"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
@@ -134,6 +136,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_235826) do
     t.string "colors"
     t.string "condition"
     t.datetime "created_at", null: false
+    t.text "defects"
     t.text "description"
     t.string "name", null: false
     t.integer "price_cents", null: false
@@ -142,6 +145,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_235826) do
     t.integer "stock", default: 1, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id"
+    t.index ["active"], name: "index_products_on_active"
+    t.index ["category"], name: "index_products_on_category"
     t.index ["user_id"], name: "index_products_on_user_id"
   end
 

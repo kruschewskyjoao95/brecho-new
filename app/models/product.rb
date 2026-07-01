@@ -12,7 +12,7 @@ class Product < ApplicationRecord
   validates :category, presence: true
   validates :stock, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :condition, inclusion: { in: %w[new_with_tags gently_used vintage], allow_blank: true }
-  validate :validate_images_count
+  validate :validate_images
 
   def condition_text
     case condition
@@ -53,9 +53,23 @@ class Product < ApplicationRecord
 
   private
 
-  def validate_images_count
-    if images.attached? && images.length > 5
-      errors.add(:images, "Você pode enviar no máximo 5 fotos por anúncio.")
+  def validate_images
+    if images.attached?
+      if images.length > 5
+        errors.add(:images, "Você pode enviar no máximo 5 fotos por anúncio.")
+      end
+
+      images.each do |image|
+        unless image.content_type.in?(%w[image/jpeg image/png image/webp])
+          errors.add(:images, "devem ser arquivos de imagem (JPEG, PNG ou WebP).")
+          break
+        end
+
+        if image.blob.byte_size > 5.megabytes
+          errors.add(:images, "cada foto deve ter no máximo 5MB.")
+          break
+        end
+      end
     end
   end
 end

@@ -2,6 +2,32 @@
 <% content_for :meta_description, (@product.description.present? ? truncate(strip_tags(@product.description), length: 155) : "Compre #{@product.name} no Brechó Ruby. Peças de moda feminina selecionadas com curadoria única.") %>
 <% content_for :meta_image, url_for(@product.images.first) if @product.images.attached? %>
 
+<% content_for :structured_data do %>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "<%= @product.name %>",
+      "image": [
+        "<%= @product.images.attached? ? url_for(@product.images.first) : '' %>"
+      ],
+      "description": "<%= @product.description.presence || "Brechó Ruby - Peças exclusivas." %>",
+      "brand": {
+        "@type": "Brand",
+        "name": "<%= @product.brand.presence || "Brechó Ruby" %>"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "<%= request.original_url %>",
+        "priceCurrency": "BRL",
+        "price": "<%= @product.price_promo_cents.present? ? @product.price_promo.to_s : @product.price.to_s %>",
+        "itemCondition": "https://schema.org/UsedCondition",
+        "availability": "<%= @product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock" %>"
+      }
+    }
+  </script>
+<% end %>
+
 <div style="margin-top: 30px;">
   <%= link_to root_path, class: "btn btn-outline btn-sm", style: "margin-bottom: 20px;" do %>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
@@ -68,6 +94,13 @@
 
     <div class="specs-desc">
       <p><%= @product.description %></p>
+      
+      <% if @product.defects.present? %>
+        <div style="margin-top: 15px; padding: 15px; background-color: #fff5f5; border-left: 4px solid #e53e3e; border-radius: 4px;">
+          <h4 style="color: #e53e3e; margin-top: 0; margin-bottom: 8px; font-size: 0.95rem; font-weight: 600;">⚠️ Atenção: Avarias ou Detalhes</h4>
+          <p style="margin: 0; font-size: 0.9rem; color: #742a2a;"><%= @product.defects %></p>
+        </div>
+      <% end %>
     </div>
 
     <%= form_with url: cart_items_path(product_id: @product.id), method: :post, data: { turbo_frame: "cart_drawer_content" } do %>

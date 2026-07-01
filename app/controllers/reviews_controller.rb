@@ -14,9 +14,17 @@ class ReviewsController < ApplicationController
       return
     end
 
-    if @order.user.present? && @order.user != current_user
-      redirect_to order_path(@order), alert: "Você não tem permissão para avaliar este pedido."
-      return
+    if authenticated?
+      if @order.user != current_user
+        redirect_to order_path(@order), alert: "Você não tem permissão para avaliar este pedido."
+        return
+      end
+    else
+      guest_orders = session[:guest_order_ids] || []
+      unless guest_orders.include?(@order.id)
+        redirect_to new_session_path, alert: "Você precisa fazer login ou ter realizado a compra como convidado para avaliar este pedido."
+        return
+      end
     end
 
     @review = @order.build_review(review_params)

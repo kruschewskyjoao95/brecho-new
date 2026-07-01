@@ -2,11 +2,12 @@ class Admin::ProductsController < Admin::BaseController
   before_action :set_product, only: [ :edit, :update, :destroy ]
 
   def index
-    if current_user.admin?
-      @products = Product.all.order(created_at: :desc)
-    else
-      @products = current_user.products.order(created_at: :desc)
-    end
+    query = if current_user.admin?
+              Product.all
+            else
+              current_user.products
+            end
+    @pagy, @products = pagy(query.order(created_at: :desc), limit: 20)
   end
 
   def new
@@ -39,9 +40,7 @@ class Admin::ProductsController < Admin::BaseController
 
   def update
     if @product.update(product_params)
-      # Se o usuário marcar "remover imagens antigas" ou similar, podemos gerenciar.
-      # Para simplificar, o Rails faz append se usarmos has_many_attached.
-      if params[:product][:purge_images] == "1"
+      if params.dig(:product, :purge_images) == "1"
         @product.images.purge
       end
       
@@ -52,8 +51,12 @@ class Admin::ProductsController < Admin::BaseController
   end
 
   def destroy
-    @product.destroy
-    redirect_to admin_products_path, notice: "Peça excluída com sucesso."
+    if @product.order_items.any?
+      redirect_to admin_products_path, alert: "Esta peça não pode ser excluída pois possui pedidos associados. Você pode desativá-la."
+    else
+      @product.destroy
+      redirect_to admin_products_path, notice: "Peça excluída com sucesso."
+    end
   end
 
   private
@@ -68,7 +71,7 @@ class Admin::ProductsController < Admin::BaseController
 
   def product_params
     params.require(:product).permit(
-      :name, :description, :price, :price_promo,
+      :name, :description, :defects, :price, :price_promo,
       :category, :sizes, :colors, :stock, :active,
       :brand, :condition, images: []
     )

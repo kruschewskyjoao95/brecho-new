@@ -2,7 +2,7 @@ class FavoritesController < ApplicationController
   # Todas as ações exigem login (comportamento padrão)
 
   def index
-    @favorite_products = current_user.favorite_products.order(created_at: :desc)
+    @pagy, @favorite_products = pagy(current_user.favorite_products.order(created_at: :desc), limit: 20)
   end
 
   def create

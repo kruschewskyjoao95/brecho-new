@@ -21,7 +21,15 @@
 
     <div class="form-group">
       <%= f.label :description, "Descrição Completa (Tecido, caimento, cuidados)", class: "form-label" %>
-      <%= f.text_area :description, class: "form-control", rows: 4, placeholder: "Detalhes sobre o material, forro, se estica..." %>
+      <%= f.text_area :description, class: "form-control", rows: 4, placeholder: "Detalhes sobre o material, forro, se estica...", required: true %>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+      <%= f.label :defects, "Avarias ou Defeitos (Buracos, manchas, etc.)", class: "form-label" %>
+      <small style="color:var(--text-muted); display:block; margin-bottom:8px;">
+        Seja o mais claro possível para evitar devoluções. Se não houver avarias, deixe em branco.
+      </small>
+      <%= f.text_area :defects, class: "form-control", rows: 3, placeholder: "Ex: Possui uma leve mancha amarelada perto da barra." %>
     </div>
 
     <div class="form-row">
@@ -53,7 +61,7 @@
       </div>
       <div class="form-group">
         <%= f.label :condition, "Estado de Conservação", class: "form-label" %>
-        <%= f.select :condition, [["Novo com etiqueta", "new_with_tags"], ["Gentilmente usado", "gently_used"], ["Vintage", "vintage"]], { prompt: "Selecione a condição" }, { class: "form-control" } %>
+        <%= f.select :condition, [["Novo com etiqueta", "new_with_tags"], ["Gentilmente usado", "gently_used"], ["Vintage", "vintage"]], { prompt: "Selecione a condição" }, { class: "form-control", required: true } %>
       </div>
     </div>
   </div>

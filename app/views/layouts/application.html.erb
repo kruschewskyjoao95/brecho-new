@@ -12,7 +12,17 @@
     <meta property="og:site_name" content="Brechó Ruby">
     <% if content_for?(:meta_image) %>
       <meta property="og:image" content="<%= yield(:meta_image) %>">
+      <meta name="twitter:image" content="<%= yield(:meta_image) %>">
     <% end %>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= content_for(:title) || "Brechó Ruby - Lookbook & Bazar" %>">
+    <meta name="twitter:description" content="<%= content_for(:meta_description) || "Brechó Ruby - Roupas femininas curadas, lookbooks exclusivos e moda consciente de segunda mão com curadoria impecável." %>">
+    
+    <link rel="canonical" href="<%= request.original_url.split('?').first %>">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    
+    <%= yield :structured_data %>
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Brechó Ruby">
     <meta name="mobile-web-app-capable" content="yes">

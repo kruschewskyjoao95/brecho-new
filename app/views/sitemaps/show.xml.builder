@@ -9,7 +9,7 @@ xml.urlset xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' do
   end
 
   # Products
-  @products.each do |product|
+  @products.find_each do |product|
     xml.url do
       xml.loc product_url(product)
       xml.lastmod product.updated_at.to_date.to_s
