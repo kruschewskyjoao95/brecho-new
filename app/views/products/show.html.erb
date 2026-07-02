@@ -40,7 +40,7 @@
   <div class="product-gallery">
     <div class="gallery-main">
       <% if @product.images.attached? %>
-        <%= image_tag @product.images.first, id: "main-product-image" %>
+        <%= image_tag @product.images.first.variant(format: :webp, resize_to_limit: [1200, 1200]), id: "main-product-image" %>
       <% else %>
         <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #eae5e1; color: var(--text-muted); font-size: 1.2rem;">
           Sem Foto
@@ -52,9 +52,9 @@
       <div class="gallery-thumbs">
         <% @product.images.each_with_index do |image, idx| %>
           <div class="thumb-item <%= 'active' if idx == 0 %>" 
-               data-src="<%= url_for(image) %>" 
+               data-src="<%= url_for(image.variant(format: :webp, resize_to_limit: [1200, 1200])) %>" 
                onclick="document.getElementById('main-product-image').src = this.dataset.src; document.querySelectorAll('.thumb-item').forEach(el => el.classList.remove('active')); this.classList.add('active');">
-            <%= image_tag image %>
+            <%= image_tag image.variant(format: :webp, resize_to_limit: [300, 300]) %>
           </div>
         <% end %>
       </div>
