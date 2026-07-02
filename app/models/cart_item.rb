@@ -4,11 +4,16 @@ class CartItem < ApplicationRecord
 
   validates :quantity, presence: true, numericality: { greater_than_or_equal_to: 1 }
 
-  def total_cents
-    quantity * (product.price_promo_cents || product.price_cents)
+  def total_cents(user = nil)
+    price = product.price_promo_cents || product.price_cents
+    if user.present?
+      offer = Offer.find_by(buyer: user, product: product, status: "accepted")
+      price = offer.amount_cents if offer
+    end
+    quantity * price
   end
 
-  def total
-    total_cents / 100.0
+  def total(user = nil)
+    total_cents(user) / 100.0
   end
 end

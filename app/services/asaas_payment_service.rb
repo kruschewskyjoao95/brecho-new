@@ -75,8 +75,8 @@ class AsaasPaymentService
   def create_real_pix_payment(api_key, customer_id)
     uri = URI("https://#{asaas_domain}/api/v3/payments")
     
-    # Aplica 10% de desconto no Pix
-    value = (@order.total * 0.90).round(2)
+    # Aplica desconto no Pix
+    value = (@order.total * (1 - PLATFORM_FEE_RATE)).round(2)
 
     payload = {
       customer: customer_id,

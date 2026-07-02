@@ -17,7 +17,8 @@ class ProductsController < ApplicationController
     end
 
     if params[:size].present?
-      @products = @products.where("products.sizes LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(params[:size])}%")
+      sz = ActiveRecord::Base.sanitize_sql_like(params[:size])
+      @products = @products.where("products.sizes LIKE ? OR products.sizes LIKE ? OR products.sizes LIKE ? OR products.sizes = ?", "%, #{sz}, %", "#{sz}, %", "%, #{sz}", sz)
     end
 
     if params[:color].present?

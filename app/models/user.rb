@@ -28,12 +28,12 @@ class User < ApplicationRecord
 
   def saldo_bloqueado
     sales_pending_cents = sales.where(status: ['paid', 'shipped']).sum("total_cents - shipping_cost_cents")
-    (sales_pending_cents * 0.90) / 100.0
+    (sales_pending_cents * (1 - PLATFORM_FEE_RATE)) / 100.0
   end
 
   def saldo_disponivel
     sales_completed_cents = sales.where(status: 'completed').sum("total_cents - shipping_cost_cents")
-    total_earned = (sales_completed_cents * 0.90) / 100.0
+    total_earned = (sales_completed_cents * (1 - PLATFORM_FEE_RATE)) / 100.0
     total_withdrawn = payouts.where(status: ['pending', 'paid']).sum(:amount_cents) / 100.0
     [total_earned - total_withdrawn, 0.0].max
   end
@@ -43,11 +43,11 @@ class User < ApplicationRecord
   end
 
   def can_create_ad?
-    free_ads_this_month < 2 || extra_ad_credits > 0
+    free_ads_this_month < FREE_AD_LIMIT || extra_ad_credits > 0
   end
 
   def consume_ad_quota!
-    if free_ads_this_month > 2
+    if free_ads_this_month > FREE_AD_LIMIT
       decrement!(:extra_ad_credits)
     end
   end

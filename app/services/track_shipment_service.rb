@@ -27,7 +27,7 @@ class TrackShipmentService
   private
 
   def test_code?
-    @tracking_code.include?("TEST") || @tracking_code.include?("SIMULA") || @tracking_code.start_index_of?("BR12345") || @tracking_code.length < 9
+    @tracking_code.include?("TEST") || @tracking_code.include?("SIMULA") || @tracking_code.start_with?("BR12345") || @tracking_code.length < 9
   rescue
     # fallback se algum método não existir
     @tracking_code.length < 9 || @tracking_code.start_with?("BR123")

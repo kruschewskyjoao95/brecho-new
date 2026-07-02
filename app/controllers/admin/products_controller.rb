@@ -7,12 +7,12 @@ class Admin::ProductsController < Admin::BaseController
             else
               current_user.products
             end
-    @pagy, @products = pagy(query.order(created_at: :desc), limit: 20)
+    @pagy, @products = pagy(query.includes(images_attachments: :blob).order(created_at: :desc), limit: 20)
   end
 
   def new
     unless current_user.admin? || current_user.can_create_ad?
-      redirect_to new_admin_ad_credit_path, alert: "Você atingiu o limite de 2 anúncios grátis neste mês. Adquira um anúncio extra."
+      redirect_to new_admin_ad_credit_path, alert: "Você atingiu o limite de #{FREE_AD_LIMIT} anúncios grátis neste mês. Adquira um anúncio extra."
       return
     end
     @product = Product.new
@@ -39,11 +39,11 @@ class Admin::ProductsController < Admin::BaseController
   end
 
   def update
+    if params.dig(:product, :purge_images) == "1"
+      @product.images.purge
+    end
+
     if @product.update(product_params)
-      if params.dig(:product, :purge_images) == "1"
-        @product.images.purge
-      end
-      
       redirect_to admin_products_path, notice: "Peça '#{@product.name}' atualizada com sucesso!"
     else
       render :edit, status: :unprocessable_entity

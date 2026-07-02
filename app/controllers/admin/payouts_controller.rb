@@ -25,7 +25,6 @@ class Admin::PayoutsController < Admin::BaseController
       @payout.status = "pending"
 
       if @payout.save
-        locked_user.decrement!(:saldo_disponivel, amount_value)
         success = true
       else
         error_message = "Erro ao processar solicitação: #{@payout.errors.full_messages.join(', ')}"

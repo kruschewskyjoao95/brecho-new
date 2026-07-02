@@ -90,17 +90,17 @@ class CalculateShippingService
   def calculate_simulated_rates
     # Determina a taxa base com base na região do CEP
     base_price = case @destination.to_i
-                 when 1000..9999     # São Paulo Capital
+                 when 1000000..9999999     # São Paulo Capital
                    12.00
-                 when 10000..19999   # São Paulo Estado
+                 when 10000000..19999999   # São Paulo Estado
                    18.50
-                 when 20000..28999   # Rio de Janeiro
+                 when 20000000..28999999   # Rio de Janeiro
                    22.00
-                 when 30000..39999   # Minas Gerais
+                 when 30000000..39999999   # Minas Gerais
                    24.00
-                 when 80000..99999   # Região Sul
+                 when 80000000..99999999   # Região Sul
                    26.50
-                 else                # Outros estados
+                 else                      # Outros estados
                    35.00
                  end
 
